@@ -23,91 +23,94 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 라켓 목록 렌더링 + 단건 삭제 버튼
   function renderRacketList(data) {
-    const container = adminRacketListEl;
-    if (!container) return;
+  const container = adminRacketListEl;
+  if (!container) return;
 
-    container.innerHTML = "";
+  container.innerHTML = "";
 
-    if (!data) {
-      container.textContent = "라켓 데이터가 없습니다.";
-      return;
+  if (!data) {
+    container.textContent = "라켓 데이터가 없습니다.";
+    return;
+  }
+
+  const rackets = Array.isArray(data.rackets) ? data.rackets : data;
+
+  if (!Array.isArray(rackets) || rackets.length === 0) {
+    container.textContent = "라켓 데이터가 없습니다.";
+    return;
+  }
+
+  rackets.forEach((racket) => {
+    const card = document.createElement("div");
+    card.className = "racket-card";
+
+    const header = document.createElement("div");
+    header.className = "racket-header";
+
+    // 1열: 이름
+    const name = document.createElement("div");
+    name.className = "racket-name";
+    name.textContent = racket.name || "이름 없음";
+    header.appendChild(name);
+
+    // 2열: P
+    const pSpan = document.createElement("div");
+    pSpan.className = "score-col";
+    pSpan.textContent = `P${racket.power ?? "-"}`;
+    header.appendChild(pSpan);
+
+    // 3열: C
+    const cSpan = document.createElement("div");
+    cSpan.className = "score-col";
+    cSpan.textContent = `C${racket.control ?? "-"}`;
+    header.appendChild(cSpan);
+
+    // 4열: S
+    const sSpan = document.createElement("div");
+    sSpan.className = "score-col";
+    sSpan.textContent = `S${racket.spin ?? "-"}`;
+    header.appendChild(sSpan);
+
+    // 5열: 삭제 버튼(있으면)
+    if (typeof racket.id === "number") {
+      const delBtn = document.createElement("button");
+      delBtn.className =
+        "button button-secondary button-danger button-small";
+      delBtn.textContent = "삭제";
+      delBtn.addEventListener("click", () => deleteRacketById(racket.id));
+      header.appendChild(delBtn);
     }
 
-    const rackets = Array.isArray(data.rackets) ? data.rackets : data;
+    card.appendChild(header);
 
-    if (!Array.isArray(rackets) || rackets.length === 0) {
-      container.textContent = "라켓 데이터가 없습니다.";
-      return;
+    const tagsBox = document.createElement("div");
+    tagsBox.className = "racket-tags";
+
+    const brand = racket.brand;
+    if (brand) {
+      const tag = document.createElement("span");
+      tag.className = "racket-tag";
+      tag.textContent = brand;
+      tagsBox.appendChild(tag);
     }
 
-    rackets.forEach((racket) => {
-      const card = document.createElement("div");
-      card.className = "racket-card";
-
-      const header = document.createElement("div");
-      header.className = "racket-header";
-
-      const name = document.createElement("div");
-      name.className = "racket-name";
-      name.textContent = racket.name || "이름 없음";
-
-      const spec = document.createElement("div");
-      spec.className = "racket-score";
-
-      // P / C / S 를 각각 한 칸씩 만들기
-      [
-      { label: "P", value: racket.power },
-      { label: "C", value: racket.control },
-      { label: "S", value: racket.spin },
-      ].forEach(({ label, value }) => {
-      const span = document.createElement("span");
-      span.className = "score-item";
-      span.textContent = `${label}${value ?? "-"}`;
-      spec.appendChild(span);
-      });
-
-      header.appendChild(name);
-      header.appendChild(spec);
-
-      // ---- 단건 삭제 버튼 추가 ----
-      if (typeof racket.id === "number") {
-        const delBtn = document.createElement("button");
-        delBtn.className =
-          "button button-secondary button-danger button-small";
-        delBtn.textContent = "삭제";
-        delBtn.addEventListener("click", () => deleteRacketById(racket.id));
-        header.appendChild(delBtn);
-      }
-
-      card.appendChild(header);
-
-      const tagsBox = document.createElement("div");
-      tagsBox.className = "racket-tags";
-
-      const brand = racket.brand;
-      if (brand) {
+    if (Array.isArray(racket.tags)) {
+      racket.tags.forEach((t) => {
         const tag = document.createElement("span");
         tag.className = "racket-tag";
-        tag.textContent = brand;
+        tag.textContent = t;
         tagsBox.appendChild(tag);
-      }
+      });
+    }
 
-      if (Array.isArray(racket.tags)) {
-        racket.tags.forEach((t) => {
-          const tag = document.createElement("span");
-          tag.className = "racket-tag";
-          tag.textContent = t;
-          tagsBox.appendChild(tag);
-        });
-      }
+    if (tagsBox.childElementCount > 0) {
+      card.appendChild(tagsBox);
+    }
 
-      if (tagsBox.childElementCount > 0) {
-        card.appendChild(tagsBox);
-      }
+    container.appendChild(card);
+  });
+}
 
-      container.appendChild(card);
-    });
-  }
 
   // ---- 단건 삭제 함수 ----
   async function deleteRacketById(id) {

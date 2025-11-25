@@ -54,17 +54,7 @@ def scan_hand():
     if result is None:
         return jsonify({"error": "손 인식 실패"}), 400
 
-    java_url = 'http://localhost:8080/recommend'
-    try:
-        print("✅ Java로 전달할 JSON:", result)
-        java_response = requests.post(java_url, json=[result], timeout=5)
-        print("📨 Java 응답 코드:", java_response.status_code)
-        print("📨 Java 응답 본문:", java_response.text)
-        java_response.raise_for_status()
-        return jsonify(java_response.json())
-    except requests.exceptions.RequestException as e:
-        print("[Java 연동 오류]", e)
-        return jsonify({'error': 'Java 서버 통신 실패'}), 500
+    return jsonify(result)
 
 
 # -------------------------

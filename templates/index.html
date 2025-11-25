@@ -1,17 +1,115 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <title>손 이미지 업로드</title>
-</head>
-<body>
-  <h1>손 이미지 업로드</h1>
-  <form id="uploadForm">
-    <input type="file" id="image" name="image">
-    <button type="submit">추천받기</button>
-  </form>
-  <div id="result"></div>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Hand Analyzer · Racket Scouter</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <script src="/static/recommend.js"></script>
-</body>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <script
+      src="{{ url_for('static', filename='recommend.js') }}"
+      defer
+    ></script>
+  </head>
+  <body>
+    <div class="app">
+      <header class="app-header">
+        <div class="brand">
+          <span class="brand-logo">🎾</span>
+          <div class="brand-text">
+            <h1 class="brand-title">Hand Analyzer</h1>
+            <p class="brand-subtitle">
+              손 모양 기반 테니스 라켓 추천 실험용 UI
+            </p>
+          </div>
+        </div>
+        <nav>
+          <a href="/admin" class="button button-secondary">DB 관리</a>
+        </nav>
+      </header>
+
+      <main class="app-main">
+        <!-- 1. 업로드 카드 -->
+        <section class="card upload-card">
+          <h2 class="card-title">1. 손 이미지 업로드</h2>
+          <p class="card-description">
+            손바닥 전체가 나오도록 촬영한 이미지를 업로드해 주세요.
+          </p>
+
+          <div id="dropZone" class="drop-zone">
+            <div class="drop-zone-inner">
+              <span class="drop-icon">📷</span>
+              <p class="drop-text">
+                이미지를 여기로 끌어오거나<br />
+                아래 버튼으로 파일을 선택하세요.
+              </p>
+              <p class="drop-hint">JPG, PNG 등 이미지 파일만 지원합니다.</p>
+            </div>
+          </div>
+
+          <div class="upload-controls">
+            <label for="handImage" class="button button-secondary">
+              파일 선택
+            </label>
+            <input
+              type="file"
+              id="handImage"
+              accept="image/*"
+              class="hidden-input"
+            />
+
+            <button id="uploadBtn" class="button button-primary">
+              손 이미지 분석하기
+            </button>
+          </div>
+
+          <p id="fileName" class="file-name">선택된 파일이 없습니다.</p>
+
+          <div class="preview-wrapper">
+            <h3 class="preview-title">이미지 미리보기</h3>
+            <div class="preview-box">
+              <img id="previewImage" alt="손 이미지 미리보기" />
+              <span id="previewPlaceholder" class="preview-placeholder">
+                아직 선택된 이미지가 없습니다.
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. 결과 카드 -->
+        <section class="card result-card">
+          <h2 class="card-title">2. 분석 결과 & 라켓 추천</h2>
+
+          <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <span>손 이미지를 분석 중입니다…</span>
+          </div>
+
+          <div id="errorBox" class="alert alert-error hidden"></div>
+
+          <div class="result-section">
+            <h3 class="section-title">
+                손 분석 결과
+                <span class="help-icon" data-tooltip="손 길이 지수·손 너비 지수는 사진에서 측정한 상대 크기 점수입니다. 값이 클수록 손이 큰 편이며, 보통 500~900 사이에 분포합니다. 700 이상 큰 손, 600 전후 평균, 550 이하 작은 손으로 참고할 수 있습니다.">?</span>
+            </h3>
+            <div id="handMetrics" class="metrics-grid"></div>
+          </div>
+          <div class="result-section">
+            <h3 class="section-title">라켓 추천 결과</h3>
+            <p class="section-hint">
+              손 분석 결과를 기반으로 이 서버에서 추천한 라켓 목록입니다.
+            </p>
+            <div id="racketList" class="racket-list"></div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="app-footer">
+        <span>© 2025 Racket Scouter · Hand Analyzer Demo</span>
+      </footer>
+    </div>
+  </body>
 </html>
