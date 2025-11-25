@@ -1,4 +1,5 @@
-flask
-mediapipe
+Flask
+Flask-SQLAlchemy
 opencv-python
+mediapipe
 numpy

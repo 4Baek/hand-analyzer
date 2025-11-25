@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Racket DB Admin · Racket Scouter</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <script
+      src="{{ url_for('static', filename='admin_db.js') }}"
+      defer
+    ></script>
+  </head>
+  <body>
+    <div class="app">
+      <header class="app-header">
+        <div class="brand">
+          <span class="brand-logo">🎾</span>
+          <div class="brand-text">
+            <h1 class="brand-title">Racket DB Admin</h1>
+            <p class="brand-subtitle">
+              라켓 스펙 관리 · 초기화 · 확인용 관리자 페이지
+            </p>
+          </div>
+        </div>
+        <nav>
+          <a href="/" class="button button-secondary">메인 분석 화면</a>
+        </nav>
+      </header>
+
+      <main class="app-main">
+        <section class="card admin-card">
+          <h2 class="card-title">라켓 DB 관리</h2>
+          <p class="card-description">
+            SQLite DB 상태를 확인하거나 샘플 데이터로 초기화하고, 새로운
+            라켓을 추가할 수 있습니다.
+          </p>
+
+          <div class="admin-controls">
+            <button
+              id="btnResetDb"
+              class="button button-secondary button-danger"
+            >
+              DB 초기화 (샘플 데이터로 리셋)
+            </button>
+
+            <button id="btnLoadAllRackets" class="button button-secondary">
+              DB 라켓 전체 조회
+            </button>
+          </div>
+        <div class="admin-add-form">
+
+        <h3 class="section-title">라켓 추가</h3>
+
+        <div class="form-row">
+            <div class="form-group">
+            <label>라켓 이름</label>
+            <input id="adminNewName" type="text" class="input" placeholder="예: Wilson Blade V9" />
+            </div>
+
+            <div class="form-group">
+            <label>브랜드</label>
+            <input id="adminNewBrand" type="text" class="input" placeholder="예: Wilson" />
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group small">
+            <label>파워 (1~10)</label>
+            <input id="adminNewPower" type="number" min="1" max="10" class="input" />
+            </div>
+
+            <div class="form-group small">
+            <label>컨트롤 (1~10)</label>
+            <input id="adminNewControl" type="number" min="1" max="10" class="input" />
+            </div>
+
+            <div class="form-group small">
+            <label>스핀 (1~10)</label>
+            <input id="adminNewSpin" type="number" min="1" max="10" class="input" />
+            </div>
+
+            <div class="form-group small">
+            <label>무게 (g)</label>
+            <input id="adminNewWeight" type="number" class="input" placeholder="300" />
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group full">
+            <label>태그</label>
+            <input id="adminNewTags" type="text" class="input" placeholder="예: 스핀,공격형" />
+            </div>
+        </div>
+
+        <button id="btnAddRacket" class="button button-primary wide">
+            라켓 추가
+        </button>
+
+        </div>
+
+
+          <div id="adminStatus" class="admin-status"></div>
+
+          <div class="result-section">
+            <h3 class="section-title">DB에 저장된 라켓 목록</h3>
+            <div
+              id="adminRacketList"
+              class="racket-list admin-racket-list"
+            ></div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="app-footer">
+        <span>© 2025 Racket Scouter · Admin</span>
+      </footer>
+    </div>
+  </body>
+</html>
