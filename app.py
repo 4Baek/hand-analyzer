@@ -139,6 +139,6 @@ def delete_racket(racket_id):
     db.session.commit()
     return jsonify({"status": "ok", "message": f"삭제 완료 (id={racket_id})"})
 
-
+# shell test
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
