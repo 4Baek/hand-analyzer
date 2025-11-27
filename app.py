@@ -64,8 +64,10 @@ def scan_hand():
 @app.route("/recommend-rackets", methods=["POST"])
 def recommend_rackets_api():
     data = request.get_json(silent=True) or {}
-    rackets = recommend_rackets_from_metrics(data)
-    return jsonify({"rackets": rackets})
+    result = recommend_rackets_from_metrics(data)
+    # result는 {"rackets": [...], "string": {...}, "handProfile": {...}}
+    return jsonify(result)
+
 
 
 # -------------------------
