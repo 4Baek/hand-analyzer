@@ -1,4 +1,6 @@
-/* 기본 색·폰트 설정 */
+/* ============================
+   기본 색 · 폰트 설정
+============================ */
 :root {
   --color-bg: #0b1020;
   --color-bg-card: #151a2c;
@@ -40,7 +42,9 @@ body {
   color: var(--color-text);
 }
 
-/* 앱 레이아웃 */
+/* ============================
+   앱 레이아웃
+============================ */
 
 .app {
   min-height: 100vh;
@@ -97,7 +101,9 @@ body {
   gap: 24px;
 }
 
-/* 카드 */
+/* ============================
+   카드 공통
+============================ */
 
 .card {
   background: radial-gradient(circle at top left, #1f2937, #020617 55%);
@@ -121,7 +127,9 @@ body {
   color: var(--color-text-subtle);
 }
 
-/* 업로드 영역 */
+/* ============================
+   업로드 영역
+============================ */
 
 .drop-zone {
   border-radius: var(--radius-lg);
@@ -162,7 +170,9 @@ body {
   transform: translateY(-1px);
 }
 
-/* 버튼 / 입력 */
+/* ============================
+   버튼 / 입력 공통
+============================ */
 
 .upload-controls {
   display: flex;
@@ -212,13 +222,64 @@ body {
   background: rgba(15, 23, 42, 0.98);
 }
 
+.button-danger {
+  border: 1px solid rgba(248, 113, 113, 0.7);
+}
+
+.button.wide {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+}
+
 .file-name {
   margin: 2px 0 0;
   font-size: 12px;
   color: var(--color-text-subtle);
 }
 
-/* 미리보기 */
+/* 공통 입력 스타일 (select, input) */
+.input {
+  padding: 9px 12px;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-card-soft);
+  border: 1px solid var(--color-border-soft);
+  color: var(--color-text);
+  font-size: 13px;
+  font-family: var(--font-family);
+  outline: none;
+  transition: 0.2s border-color ease, 0.2s background-color ease,
+    0.2s box-shadow ease;
+}
+
+.input:focus {
+  border-color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 0 1px rgba(79, 140, 255, 0.3);
+}
+
+/* 숫자 입력 화살표 숨기기 */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* 셀렉트/옵션 색상 (다크테마 가독성) */
+select,
+select.option,
+select option {
+  color: #ffffff !important;
+  background-color: #1e1e1e !important;
+}
+
+/* ============================
+   미리보기
+============================ */
 
 .preview-wrapper {
   margin-top: 8px;
@@ -254,7 +315,9 @@ body {
   color: var(--color-text-subtle);
 }
 
-/* 결과 카드 */
+/* ============================
+   결과 카드 / 섹션
+============================ */
 
 .result-card {
   position: relative;
@@ -275,7 +338,7 @@ body {
   color: var(--color-text-subtle);
 }
 
-/* 로딩 */
+/* 로딩 표시 */
 
 .loading {
   display: inline-flex;
@@ -318,7 +381,9 @@ body {
   border: 1px solid rgba(248, 113, 113, 0.55);
 }
 
-/* 손 분석 결과 */
+/* ============================
+   손 분석 결과
+============================ */
 
 .metrics-grid {
   display: grid;
@@ -344,7 +409,9 @@ body {
   font-weight: 600;
 }
 
-/* 라켓 리스트 */
+/* ============================
+   라켓 리스트
+============================ */
 
 .racket-list {
   display: grid;
@@ -393,10 +460,9 @@ body {
 
 /* P7 / C10 / S6 각각 한 칸씩 */
 .score-item {
-  min-width: 48px;      /* 숫자 자릿수 달라도 폭은 동일 */
-  text-align: center;   /* 칸 가운데 정렬 */
+  min-width: 48px;
+  text-align: center;
 }
-
 
 .racket-tags {
   display: flex;
@@ -413,47 +479,125 @@ body {
   color: #e5e7eb;
 }
 
-/* 푸터 */
+/* ============================
+   설문(Survey) 섹션
+============================ */
 
-.app-footer {
-  max-width: 1100px;
-  margin: 0 auto;
-  font-size: 11px;
-  color: var(--color-text-subtle);
+.survey-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px 16px;
+  margin-top: 6px;
+}
+
+.survey-field {
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
+  gap: 6px;
 }
 
-/* 공통 유틸 */
-
-.hidden {
-  display: none !important;
+.survey-field label {
+  font-size: 13px;
+  color: var(--color-text-subtle);
 }
 
-/* 반응형 */
-
-@media (max-width: 900px) {
-  .app {
-    padding: 18px;
-  }
-
-  .app-main {
-    grid-template-columns: 1fr;
-  }
+.survey-options {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-@media (max-width: 600px) {
-  .app {
-    padding: 14px;
-  }
-
-  .card {
-    padding: 16px 15px 18px;
-  }
+.survey-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--color-text);
 }
+
+/* 툴팁 아이콘 */
+
+.help-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 6px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.18);
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s ease;
+}
+
+.help-icon:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* 툴팁 말풍선 */
+
+.help-icon:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: 22px;
+  right: 0;
+  width: 220px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(30, 41, 59, 0.96);
+  color: #e2e8f0;
+  font-size: 11px;
+  line-height: 1.4;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  z-index: 20;
+}
+
+.help-icon:hover::before {
+  content: "";
+  position: absolute;
+  top: 14px;
+  right: 6px;
+  border-width: 6px;
+  border-style: solid;
+  border-color: transparent transparent rgba(30, 41, 59, 0.96) transparent;
+}
+
+/* ============================
+   스트링 추천 박스
+============================ */
+
+.string-box {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-soft);
+  background: rgba(15, 23, 42, 0.9);
+  padding: 10px 12px;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.string-main {
+  font-weight: 600;
+}
+
+.string-reason {
+  font-size: 12px;
+  color: var(--color-text-subtle);
+  line-height: 1.5;
+}
+
+/* ============================
+   Admin 화면
+============================ */
 
 .admin-card {
-  grid-column: 1 / -1; /* 두 컬럼 전체 너비 사용 */
+  grid-column: 1 / -1;
 }
 
 .admin-controls {
@@ -461,10 +605,6 @@ body {
   flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 8px;
-}
-
-.button-danger {
-  border: 1px solid rgba(248, 113, 113, 0.7);
 }
 
 .admin-status {
@@ -476,10 +616,6 @@ body {
 .admin-status-error {
   color: #fecaca;
 }
-
-/* -----------------------------
-   Admin Form (라켓 추가)
------------------------------- */
 
 .admin-add-form {
   margin-top: 20px;
@@ -526,158 +662,49 @@ body {
   border: 1px solid var(--color-border-soft);
   color: var(--color-text);
   font-size: 14px;
-  transition: 0.2s;
 }
 
 .admin-add-form .input:focus {
   outline: none;
   border-color: var(--color-primary);
-  background: rgba(255,255,255,0.05);
-}
-
-.button.wide {
-  width: 100%;
-  padding: 12px;
-  font-size: 16px;
-}
-
-/* 숫자 입력 화살표 숨기기 (Chrome, Edge, Safari) */
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-/* 숫자 입력 화살표 숨기기 (Firefox) */
-input[type="number"] {
-  -moz-appearance: textfield;
-}
-
-/* 툴팁 아이콘 */
-.help-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  margin-left: 6px;
-  border-radius: 50%;
-  font-size: 11px;
-  font-weight: 700;
-  color: #fff;
-  background: rgba(255,255,255,0.18);
-  cursor: pointer;
-  position: relative;
-  transition: background 0.2s ease;
-}
-
-.help-icon:hover {
-  background: rgba(255,255,255,0.35);
-}
-
-/* 툴팁 말풍선 */
-.help-icon:hover::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  top: 22px;
-  right: 0;
-  width: 220px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: rgba(30, 41, 59, 0.96);
-  color: #e2e8f0;
-  font-size: 11px;
-  line-height: 1.4;
-  border: 1px solid rgba(255,255,255,0.1);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-  z-index: 20;
-}
-
-/* 말풍선 화살표 */
-.help-icon:hover::before {
-  content: "";
-  position: absolute;
-  top: 14px;
-  right: 6px;
-  border-width: 6px;
-  border-style: solid;
-  border-color: transparent transparent rgba(30,41,59,0.96) transparent;
-}
-
-/* -----------------------------
-   설문(Survey) 섹션 스타일
------------------------------- */
-
-.survey-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px 16px;
-  margin-top: 6px;
-}
-
-.survey-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.survey-field label {
-  font-size: 13px;
-  color: var(--color-text-subtle);
-}
-
-.survey-options {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.survey-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--color-text);
-}
-
-/* 공통 입력 스타일 (설문 select에서 사용) */
-.input {
-  padding: 9px 12px;
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-card-soft);
-  border: 1px solid var(--color-border-soft);
-  color: var(--color-text);
-  font-size: 13px;
-  font-family: var(--font-family);
-}
-
-.input:focus {
-  outline: none;
-  border-color: var(--color-primary);
   background: rgba(255, 255, 255, 0.05);
 }
 
-/* -----------------------------
-   스트링 추천 박스
------------------------------- */
+/* ============================
+   푸터 / 유틸 / 반응형
+============================ */
 
-.string-box {
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border-soft);
-  background: rgba(15, 23, 42, 0.9);
-  padding: 10px 12px;
-  font-size: 13px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.string-main {
-  font-weight: 600;
-}
-
-.string-reason {
-  font-size: 12px;
+.app-footer {
+  max-width: 1100px;
+  margin: 0 auto;
+  font-size: 11px;
   color: var(--color-text-subtle);
-  line-height: 1.5;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* 반응형 */
+
+@media (max-width: 900px) {
+  .app {
+    padding: 18px;
+  }
+
+  .app-main {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .app {
+    padding: 14px;
+  }
+
+  .card {
+    padding: 16px 15px 18px;
+  }
 }
