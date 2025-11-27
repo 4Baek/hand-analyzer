@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const errorBox = document.getElementById("errorBox");
   const handMetricsEl = document.getElementById("handMetrics");
   const racketListEl = document.getElementById("racketList");
+  const stringRecommendationEl = document.getElementById("stringRecommendation");
 
   // DB 관리 관련 요소
   const btnResetDb = document.getElementById("btnResetDb");
@@ -30,6 +31,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const adminNewTags = document.getElementById("adminNewTags");
   const btnAddRacket = document.getElementById("btnAddRacket");
 
+  // 설문 요소
+  const surveyLevel = document.getElementById("surveyLevel");
+  const surveyPain = document.getElementById("surveyPain");
+  const surveySwing = document.getElementById("surveySwing");
+  const stylePower = document.getElementById("stylePower");
+  const styleControl = document.getElementById("styleControl");
+  const styleSpin = document.getElementById("styleSpin");
+  const surveyStringType = document.getElementById("surveyStringType");
+
   let selectedFile = null;
 
   // -----------------------------
@@ -37,8 +47,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // -----------------------------
 
   function setLoading(isLoading) {
-    loadingEl.classList.toggle("hidden", !isLoading);
-    uploadBtn.disabled = isLoading;
+    if (loadingEl) {
+      loadingEl.classList.toggle("hidden", !isLoading);
+    }
+    if (uploadBtn) {
+      uploadBtn.disabled = isLoading;
+    }
   }
 
   function showError(message) {
@@ -57,21 +71,46 @@ document.addEventListener("DOMContentLoaded", () => {
     selectedFile = file;
 
     if (!file) {
-      fileNameEl.textContent = "선택된 파일이 없습니다.";
-      previewImg.style.display = "none";
-      previewPlaceholder.style.display = "block";
+      if (fileNameEl) fileNameEl.textContent = "선택된 파일이 없습니다.";
+      if (previewImg) previewImg.style.display = "none";
+      if (previewPlaceholder) previewPlaceholder.style.display = "block";
       return;
     }
 
-    fileNameEl.textContent = file.name;
+    if (fileNameEl) fileNameEl.textContent = file.name;
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      previewImg.src = e.target.result;
-      previewImg.style.display = "block";
-      previewPlaceholder.style.display = "none";
+      if (previewImg) {
+        previewImg.src = e.target.result;
+        previewImg.style.display = "block";
+      }
+      if (previewPlaceholder) {
+        previewPlaceholder.style.display = "none";
+      }
     };
     reader.readAsDataURL(file);
+  }
+
+  // -----------------------------
+  // 설문 데이터 수집
+  // -----------------------------
+
+  function collectSurvey() {
+    const styles = [];
+    if (stylePower && stylePower.checked) styles.push("power");
+    if (styleControl && styleControl.checked) styles.push("control");
+    if (styleSpin && styleSpin.checked) styles.push("spin");
+
+    return {
+      level: surveyLevel ? surveyLevel.value || null : null,
+      pain: surveyPain ? surveyPain.value || null : null,
+      swing: surveySwing ? surveySwing.value || null : null,
+      styles,
+      stringTypePreference: surveyStringType
+        ? surveyStringType.value || "auto"
+        : "auto",
+    };
   }
 
   // -----------------------------
@@ -128,8 +167,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     clearError();
     setLoading(true);
-    handMetricsEl.innerHTML = "";
-    racketListEl.innerHTML = "";
+    if (handMetricsEl) handMetricsEl.innerHTML = "";
+    if (racketListEl) racketListEl.innerHTML = "";
+    if (stringRecommendationEl) {
+      stringRecommendationEl.innerHTML =
+        '<span class="metric-label">스트링 추천을 준비 중입니다…</span>';
+    }
 
     const formData = new FormData();
     formData.append("file", selectedFile);
@@ -166,59 +209,58 @@ document.addEventListener("DOMContentLoaded", () => {
   // -----------------------------
 
   function renderHandMetrics(metrics) {
-  if (!metrics || !handMetricsEl) return;
+    if (!metrics || !handMetricsEl) return;
 
-  handMetricsEl.innerHTML = "";
+    handMetricsEl.innerHTML = "";
 
-  const { handLength, handWidth, fingerRatios } = metrics;
+    const { handLength, handWidth, fingerRatios } = metrics;
 
-  const items = [];
+    const items = [];
 
-  if (typeof handLength === "number") {
-    items.push({
-      label: "손 길이 지수",
-      value: handLength.toFixed(0),      // 704 처럼 정수로
-    });
+    if (typeof handLength === "number") {
+      items.push({
+        label: "손 길이 지수",
+        value: handLength.toFixed(0),
+      });
+    }
+
+    if (typeof handWidth === "number") {
+      items.push({
+        label: "손 너비 지수",
+        value: handWidth.toFixed(0),
+      });
+    }
+
+    if (Array.isArray(fingerRatios)) {
+      items.push({
+        label: "손가락 비율 (검지/중지, 약지/중지)",
+        value: fingerRatios.map((v) => v.toFixed(2)).join(" / "),
+      });
+    }
+
+    if (items.length === 0) {
+      handMetricsEl.innerHTML =
+        '<span class="metric-label">표시할 손 분석 데이터가 없습니다.</span>';
+      return;
+    }
+
+    for (const item of items) {
+      const div = document.createElement("div");
+      div.className = "metric-item";
+
+      const label = document.createElement("div");
+      label.className = "metric-label";
+      label.textContent = item.label;
+
+      const value = document.createElement("div");
+      value.className = "metric-value";
+      value.textContent = item.value;
+
+      div.appendChild(label);
+      div.appendChild(value);
+      handMetricsEl.appendChild(div);
+    }
   }
-
-  if (typeof handWidth === "number") {
-    items.push({
-      label: "손 너비 지수",
-      value: handWidth.toFixed(0),
-    });
-  }
-
-  if (Array.isArray(fingerRatios)) {
-    items.push({
-      label: "손가락 비율 (검지/중지, 약지/중지)",
-      value: fingerRatios.map((v) => v.toFixed(2)).join(" / "),
-    });
-  }
-
-  if (items.length === 0) {
-    handMetricsEl.innerHTML =
-      '<span class="metric-label">표시할 손 분석 데이터가 없습니다.</span>';
-    return;
-  }
-
-  for (const item of items) {
-    const div = document.createElement("div");
-    div.className = "metric-item";
-
-    const label = document.createElement("div");
-    label.className = "metric-label";
-    label.textContent = item.label;
-
-    const value = document.createElement("div");
-    value.className = "metric-value";
-    value.textContent = item.value;
-
-    div.appendChild(label);
-    div.appendChild(value);
-    handMetricsEl.appendChild(div);
-  }
-}
-
 
   // -----------------------------
   // 라켓 추천 요청
@@ -226,12 +268,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function requestRacketRecommendation(metrics) {
     try {
+      const survey = collectSurvey();
+      const payload = Object.assign({}, metrics, { survey });
+
       const res = await fetch(RACKET_RECOMMEND_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(metrics),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
@@ -242,8 +287,66 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const data = await res.json();
       renderRacketList(data, racketListEl); // 메인 결과에는 삭제 버튼 X
+
+      if (data && (data.string || data.stringRecommendation)) {
+        renderStringRecommendation(data.string || data.stringRecommendation);
+      } else if (stringRecommendationEl) {
+        stringRecommendationEl.innerHTML =
+          '<span class="metric-label">스트링 추천 정보를 받지 못했습니다.</span>';
+      }
     } catch (e) {
       showError(`라켓 추천 요청 중 오류가 발생했습니다: ${e}`);
+    }
+  }
+
+  // -----------------------------
+  // 스트링 추천 렌더링
+  // -----------------------------
+
+  function renderStringRecommendation(info) {
+    if (!stringRecommendationEl) return;
+    stringRecommendationEl.innerHTML = "";
+
+    if (!info) {
+      stringRecommendationEl.innerHTML =
+        '<span class="metric-label">스트링 추천 정보를 받지 못했습니다.</span>';
+      return;
+    }
+
+    const main = document.createElement("div");
+    main.className = "string-main";
+
+    const tensionTextParts = [];
+
+    if (
+      typeof info.tensionMainKg === "number" &&
+      typeof info.tensionMainLbs === "number"
+    ) {
+      tensionTextParts.push(
+        `${info.tensionMainKg.toFixed(1)}kg (${info.tensionMainLbs}lbs)`
+      );
+    }
+
+    let label = info.stringLabel || "";
+    if (!label && info.stringType) {
+      if (info.stringType === "poly") label = "폴리 스트링";
+      else if (info.stringType === "multi") label = "멀티필라멘트 스트링";
+      else label = "기본 스트링";
+    }
+
+    main.textContent = tensionTextParts.length
+      ? `${tensionTextParts.join(" / ")} · ${label}`
+      : label || "스트링 추천 정보를 받지 못했습니다.";
+
+    const reason = document.createElement("div");
+    reason.className = "string-reason";
+    if (info.reason) {
+      reason.textContent = info.reason;
+    }
+
+    stringRecommendationEl.appendChild(main);
+    if (info.reason) {
+      stringRecommendationEl.appendChild(reason);
     }
   }
 
@@ -304,7 +407,8 @@ document.addEventListener("DOMContentLoaded", () => {
       // 관리 화면에서만 삭제 버튼 추가
       if (showDelete && typeof racket.id === "number" && onDelete) {
         const delBtn = document.createElement("button");
-        delBtn.className = "button button-secondary button-small button-danger";
+        delBtn.className =
+          "button button-secondary button-small button-danger";
         delBtn.textContent = "삭제";
         delBtn.addEventListener("click", () => onDelete(racket.id));
         header.appendChild(delBtn);
@@ -502,5 +606,10 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (e) {
       setAdminStatus(`라켓 삭제 에러: ${e}`, true);
     }
+  }
+
+  // 첫 진입 시 관리 화면에 라켓 목록이 있다면 한 번 가져오기
+  if (adminRacketListEl) {
+    handleLoadAllRackets();
   }
 });

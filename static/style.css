@@ -604,3 +604,80 @@ input[type="number"] {
   border-color: transparent transparent rgba(30,41,59,0.96) transparent;
 }
 
+/* -----------------------------
+   설문(Survey) 섹션 스타일
+------------------------------ */
+
+.survey-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px 16px;
+  margin-top: 6px;
+}
+
+.survey-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.survey-field label {
+  font-size: 13px;
+  color: var(--color-text-subtle);
+}
+
+.survey-options {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.survey-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--color-text);
+}
+
+/* 공통 입력 스타일 (설문 select에서 사용) */
+.input {
+  padding: 9px 12px;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-card-soft);
+  border: 1px solid var(--color-border-soft);
+  color: var(--color-text);
+  font-size: 13px;
+  font-family: var(--font-family);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* -----------------------------
+   스트링 추천 박스
+------------------------------ */
+
+.string-box {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-soft);
+  background: rgba(15, 23, 42, 0.9);
+  padding: 10px 12px;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.string-main {
+  font-weight: 600;
+}
+
+.string-reason {
+  font-size: 12px;
+  color: var(--color-text-subtle);
+  line-height: 1.5;
+}

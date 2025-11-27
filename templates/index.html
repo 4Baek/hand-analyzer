@@ -22,7 +22,7 @@
           <div class="brand-text">
             <h1 class="brand-title">Hand Analyzer</h1>
             <p class="brand-subtitle">
-              손 모양 기반 테니스 라켓 추천 실험용 UI
+              손 모양 + 설문 기반 테니스 라켓 · 스트링 추천 실험용 UI
             </p>
           </div>
         </div>
@@ -62,7 +62,7 @@
             />
 
             <button id="uploadBtn" class="button button-primary">
-              손 이미지 분석하기
+              손 분석 + 추천 실행
             </button>
           </div>
 
@@ -79,9 +79,9 @@
           </div>
         </section>
 
-        <!-- 2. 결과 카드 -->
+        <!-- 2. 결과 + 설문 카드 -->
         <section class="card result-card">
-          <h2 class="card-title">2. 분석 결과 & 라켓 추천</h2>
+          <h2 class="card-title">2. 분석 결과 · 설문 · 추천</h2>
 
           <div id="loading" class="loading hidden">
             <div class="spinner"></div>
@@ -90,17 +90,111 @@
 
           <div id="errorBox" class="alert alert-error hidden"></div>
 
+          <!-- 손 분석 결과 -->
           <div class="result-section">
             <h3 class="section-title">
-                손 분석 결과
-                <span class="help-icon" data-tooltip="손 길이 지수·손 너비 지수는 사진에서 측정한 상대 크기 점수입니다. 값이 클수록 손이 큰 편이며, 보통 500~900 사이에 분포합니다. 700 이상 큰 손, 600 전후 평균, 550 이하 작은 손으로 참고할 수 있습니다.">?</span>
+              손 분석 결과
+              <span
+                class="help-icon"
+                data-tooltip="손 길이 지수·손 너비 지수는 사진에서 측정한 상대 크기 점수입니다. 값이 클수록 손이 큰 편이며, 보통 500~900 사이에 분포합니다. 700 이상 큰 손, 600 전후 평균, 550 이하 작은 손으로 참고할 수 있습니다."
+                >?</span
+              >
             </h3>
             <div id="handMetrics" class="metrics-grid"></div>
           </div>
+
+          <!-- 설문 섹션 -->
+          <div class="result-section">
+            <h3 class="section-title">플레이 스타일 설문</h3>
+            <p class="section-hint">
+              4개 정도의 항목만 선택해 주면 라켓과 스트링 추천 정확도가 더 좋아집니다.
+              선택하지 않은 항목은 기본값으로 계산됩니다.
+            </p>
+
+            <form id="surveyForm" class="survey-grid" onsubmit="return false;">
+              <div class="survey-field">
+                <label for="surveyLevel">현재 레벨 / 구력</label>
+                <select id="surveyLevel" class="input">
+                  <option value="">선택 안 함</option>
+                  <option value="beginner">입문 (레슨 3개월 이하)</option>
+                  <option value="intermediate">초급 (3~12개월)</option>
+                  <option value="advanced">중급 (1~3년)</option>
+                  <option value="expert">상급 (3년 이상)</option>
+                </select>
+              </div>
+
+              <div class="survey-field">
+                <label for="surveyPain">팔·손목 통증 여부</label>
+                <select id="surveyPain" class="input">
+                  <option value="">선택 안 함</option>
+                  <option value="none">통증 없음</option>
+                  <option value="sometimes">가끔 있다</option>
+                  <option value="often">자주 있다 / 민감하다</option>
+                </select>
+              </div>
+
+              <div class="survey-field">
+                <label for="surveySwing">스윙 속도 / 템포</label>
+                <select id="surveySwing" class="input">
+                  <option value="">선택 안 함</option>
+                  <option value="slow">느린 편</option>
+                  <option value="normal">보통</option>
+                  <option value="fast">빠른 편</option>
+                </select>
+              </div>
+
+              <div class="survey-field">
+                <label>원하는 플레이 스타일 (복수 선택 가능)</label>
+                <div class="survey-options">
+                  <label class="survey-checkbox">
+                    <input type="checkbox" id="stylePower" value="power" />
+                    파워 중심
+                  </label>
+                  <label class="survey-checkbox">
+                    <input type="checkbox" id="styleControl" value="control" />
+                    컨트롤 중심
+                  </label>
+                  <label class="survey-checkbox">
+                    <input type="checkbox" id="styleSpin" value="spin" />
+                    스핀 위주
+                  </label>
+                </div>
+              </div>
+
+              <div class="survey-field">
+                <label for="surveyStringType">
+                  선호 스트링 타입
+                  <span
+                    class="help-icon"
+                    data-tooltip="폴리: 스핀·내구성, 대신 조금 더 단단한 느낌 / 멀티: 부드럽고 팔에 편안하지만 내구성은 약간 떨어질 수 있습니다."
+                    >?</span
+                  >
+                </label>
+                <select id="surveyStringType" class="input">
+                  <option value="auto">자동 선택 (추천)</option>
+                  <option value="poly">폴리 위주가 좋음</option>
+                  <option value="multi">멀티필라멘트 위주가 좋음</option>
+                </select>
+              </div>
+            </form>
+          </div>
+
+          <!-- 스트링 / 텐션 추천 -->
+          <div class="result-section">
+            <h3 class="section-title">스트링 · 텐션 추천</h3>
+            <p class="section-hint">
+              손 분석 + 설문을 바탕으로 텐션과 스트링 타입을 함께 제안합니다.
+            </p>
+            <div id="stringRecommendation" class="string-box">
+              <span class="metric-label">아직 추천 결과가 없습니다.</span>
+            </div>
+          </div>
+
+          <!-- 라켓 추천 -->
           <div class="result-section">
             <h3 class="section-title">라켓 추천 결과</h3>
             <p class="section-hint">
-              손 분석 결과를 기반으로 이 서버에서 추천한 라켓 목록입니다.
+              손 분석 결과와 설문을 기반으로 이 서버에서 추천한 라켓 목록입니다.
             </p>
             <div id="racketList" class="racket-list"></div>
           </div>
