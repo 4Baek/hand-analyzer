@@ -50,7 +50,19 @@ def scan_hand():
     temp_path = os.path.join(BASE_DIR, "temp.jpg")
     file.save(temp_path)
 
-    result = analyze_hand(temp_path)
+    capture_distance_raw = request.form.get("captureDistance") or None
+    capture_distance_cm = None
+    if capture_distance_raw:
+      try:
+          capture_distance_cm = float(capture_distance_raw)
+      except ValueError:
+          capture_distance_cm = None
+
+    # analyze_hand에서 더 이상 capture_device를 받지 않는 버전
+    result = analyze_hand(
+        temp_path,
+        capture_distance_cm=capture_distance_cm,
+    )
     if result is None:
         return jsonify({"error": "손 인식 실패"}), 400
 

@@ -16,7 +16,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const racketListEl = document.getElementById("racketList");
   const stringRecommendationEl = document.getElementById("stringRecommendation");
 
-  // DB 관리 관련 요소
+  // 손 분석용 촬영 정보 (거리만 사용)
+  const captureDistanceInput = document.getElementById("captureDistanceInput");
+
+  // 설문 요소
+  const surveyLevel = document.getElementById("surveyLevel");
+  const surveyPain = document.getElementById("surveyPain");
+  const surveySwing = document.getElementById("surveySwing");
+  const stylePower = document.getElementById("stylePower");
+  const styleControl = document.getElementById("styleControl");
+  const styleSpin = document.getElementById("styleSpin");
+  const surveyStringType = document.getElementById("surveyStringType");
+
+  const recommendBtn = document.getElementById("recommendBtn");
+
+  // (있으면) DB 관리 관련 요소 – index.html에서는 사용 안 해도 무방
   const btnResetDb = document.getElementById("btnResetDb");
   const btnLoadAllRackets = document.getElementById("btnLoadAllRackets");
   const adminStatusEl = document.getElementById("adminStatus");
@@ -31,16 +45,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const adminNewTags = document.getElementById("adminNewTags");
   const btnAddRacket = document.getElementById("btnAddRacket");
 
-  // 설문 요소
-  const surveyLevel = document.getElementById("surveyLevel");
-  const surveyPain = document.getElementById("surveyPain");
-  const surveySwing = document.getElementById("surveySwing");
-  const stylePower = document.getElementById("stylePower");
-  const styleControl = document.getElementById("styleControl");
-  const styleSpin = document.getElementById("styleSpin");
-  const surveyStringType = document.getElementById("surveyStringType");
-
   let selectedFile = null;
+  let lastHandMetrics = null;
 
   // -----------------------------
   // 공통 UI 유틸
@@ -52,6 +58,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (uploadBtn) {
       uploadBtn.disabled = isLoading;
+    }
+    if (recommendBtn) {
+      recommendBtn.disabled = isLoading;
     }
   }
 
@@ -127,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     ["dragleave", "drop"].forEach((eventName) => {
-      dropZone.addEventListener(eventName, (e) => {
+      dropZone.addListener = dropZone.addEventListener(eventName, (e) => {
         e.preventDefault();
         e.stopPropagation();
         dropZone.classList.remove("dragover");
@@ -156,7 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // -----------------------------
-  // 손 이미지 업로드 & 분석
+  // 손 이미지 업로드 & 분석 (손 분석만)
   // -----------------------------
 
   async function uploadHandImage() {
@@ -168,14 +177,19 @@ document.addEventListener("DOMContentLoaded", () => {
     clearError();
     setLoading(true);
     if (handMetricsEl) handMetricsEl.innerHTML = "";
-    if (racketListEl) racketListEl.innerHTML = "";
-    if (stringRecommendationEl) {
-      stringRecommendationEl.innerHTML =
-        '<span class="metric-label">스트링 추천을 준비 중입니다…</span>';
-    }
 
     const formData = new FormData();
     formData.append("file", selectedFile);
+
+    // 촬영 거리 (기본 30cm)
+    let distanceCm = 30;
+    if (captureDistanceInput) {
+      const raw = captureDistanceInput.value;
+      if (raw !== "" && !isNaN(raw)) {
+        distanceCm = Number(raw);
+      }
+    }
+    formData.append("captureDistance", distanceCm);
 
     try {
       const res = await fetch("/scan-hand", {
@@ -191,8 +205,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const metrics = await res.json();
+      lastHandMetrics = metrics || null;
       renderHandMetrics(metrics);
-      await requestRacketRecommendation(metrics);
     } catch (e) {
       showError(`손 분석 요청 중 오류가 발생했습니다: ${e}`);
     } finally {
@@ -205,7 +219,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // -----------------------------
-  // 손 분석 결과 렌더링
+  // 손 분석 결과 렌더링 (mm/cm 포함)
   // -----------------------------
 
   function renderHandMetrics(metrics) {
@@ -213,10 +227,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     handMetricsEl.innerHTML = "";
 
-    const { handLength, handWidth, fingerRatios } = metrics;
+    const {
+      handLength,
+      handWidth,
+      fingerRatios,
+      handLengthMm,
+      handLengthCm,
+      handWidthMm,
+      handWidthCm,
+      handSizeCategory,
+    } = metrics;
 
     const items = [];
 
+    // 상대 지수
     if (typeof handLength === "number") {
       items.push({
         label: "손 길이 지수",
@@ -231,10 +255,45 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    if (Array.isArray(fingerRatios)) {
+    // mm/cm 추정값
+    if (typeof handLengthMm === "number") {
+      const cm =
+        typeof handLengthCm === "number"
+          ? handLengthCm
+          : handLengthMm / 10.0;
+      items.push({
+        label: "손 길이 (추정값)",
+        value: `${handLengthMm.toFixed(1)} mm / ${cm.toFixed(1)} cm`,
+      });
+    }
+
+    if (typeof handWidthMm === "number") {
+      const cm =
+        typeof handWidthCm === "number" ? handWidthCm : handWidthMm / 10.0;
+      items.push({
+        label: "손 너비 (추정값)",
+        value: `${handWidthMm.toFixed(1)} mm / ${cm.toFixed(1)} cm`,
+      });
+    }
+
+    // 손가락 비율
+    if (Array.isArray(fingerRatios) && fingerRatios.length > 0) {
       items.push({
         label: "손가락 비율 (검지/중지, 약지/중지)",
         value: fingerRatios.map((v) => v.toFixed(2)).join(" / "),
+      });
+    }
+
+    // 손 크기 구분
+    if (handSizeCategory) {
+      let labelText = "";
+      if (handSizeCategory === "SMALL") labelText = "작은 손";
+      else if (handSizeCategory === "LARGE") labelText = "큰 손";
+      else labelText = "보통 손";
+
+      items.push({
+        label: "손 크기 구분",
+        value: labelText,
       });
     }
 
@@ -269,7 +328,9 @@ document.addEventListener("DOMContentLoaded", () => {
   async function requestRacketRecommendation(metrics) {
     try {
       const survey = collectSurvey();
-      const payload = Object.assign({}, metrics, { survey });
+      const baseMetrics =
+        metrics && typeof metrics === "object" ? metrics : {};
+      const payload = Object.assign({}, baseMetrics, { survey });
 
       const res = await fetch(RACKET_RECOMMEND_URL, {
         method: "POST",
@@ -286,10 +347,12 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const data = await res.json();
-      renderRacketList(data, racketListEl); // 메인 결과에는 삭제 버튼 X
+      renderRacketList(data, racketListEl);
 
       if (data && (data.string || data.stringRecommendation)) {
-        renderStringRecommendation(data.string || data.stringRecommendation);
+        renderStringRecommendation(
+          data.string || data.stringRecommendation
+        );
       } else if (stringRecommendationEl) {
         stringRecommendationEl.innerHTML =
           '<span class="metric-label">스트링 추천 정보를 받지 못했습니다.</span>';
@@ -297,6 +360,35 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (e) {
       showError(`라켓 추천 요청 중 오류가 발생했습니다: ${e}`);
     }
+  }
+
+  // -----------------------------
+  // 라켓·스트링 추천 실행 버튼
+  // -----------------------------
+
+  async function handleRecommendClick() {
+    clearError();
+    setLoading(true);
+
+    if (racketListEl) racketListEl.innerHTML = "";
+    if (stringRecommendationEl) {
+      stringRecommendationEl.innerHTML =
+        '<span class="metric-label">스트링 추천을 준비 중입니다…</span>';
+    }
+
+    try {
+      const metrics =
+        lastHandMetrics && typeof lastHandMetrics === "object"
+          ? lastHandMetrics
+          : {};
+      await requestRacketRecommendation(metrics);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (recommendBtn) {
+    recommendBtn.addEventListener("click", handleRecommendClick);
   }
 
   // -----------------------------
@@ -352,7 +444,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // -----------------------------
   // 라켓 리스트 렌더링 (공통)
-  // options: { showDelete: boolean, onDelete: (id) => void }
   // -----------------------------
 
   function renderRacketList(data, container, options = {}) {
@@ -445,7 +536,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // -----------------------------
-  // DB 관리 상태 표시
+  // (선택) DB 관리 상태/함수 – admin.html에서만 의미 있음
   // -----------------------------
 
   function setAdminStatus(message, isError = false) {
@@ -454,11 +545,8 @@ document.addEventListener("DOMContentLoaded", () => {
     adminStatusEl.classList.toggle("admin-status-error", !!isError);
   }
 
-  // -----------------------------
-  // DB 초기화 버튼
-  // -----------------------------
-
   async function handleResetDb() {
+    if (!btnResetDb) return;
     if (!confirm("정말로 DB를 초기화하고 샘플 데이터로 다시 채울까요?")) {
       return;
     }
@@ -483,15 +571,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  if (btnResetDb) {
-    btnResetDb.addEventListener("click", handleResetDb);
-  }
-
-  // -----------------------------
-  // DB 라켓 전체 조회 버튼
-  // -----------------------------
-
   async function handleLoadAllRackets() {
+    if (!btnLoadAllRackets || !adminRacketListEl) return;
+
     try {
       setAdminStatus("DB 라켓 목록 조회 중...");
       const res = await fetch("/admin/rackets");
@@ -513,15 +595,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  if (btnLoadAllRackets) {
-    btnLoadAllRackets.addEventListener("click", handleLoadAllRackets);
-  }
-
-  // -----------------------------
-  // 라켓 추가 버튼
-  // -----------------------------
-
   async function handleAddRacket() {
+    if (!btnAddRacket) return;
+
     const name = adminNewName?.value.trim();
     const brand = adminNewBrand?.value.trim();
 
@@ -576,15 +652,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  if (btnAddRacket) {
-    btnAddRacket.addEventListener("click", handleAddRacket);
-  }
-
-  // -----------------------------
-  // 단건 삭제 함수
-  // -----------------------------
-
   async function deleteRacketById(id) {
+    if (!btnLoadAllRackets) return;
     if (!confirm(`ID ${id} 라켓을 삭제할까요?`)) {
       return;
     }
@@ -608,8 +677,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // 첫 진입 시 관리 화면에 라켓 목록이 있다면 한 번 가져오기
-  if (adminRacketListEl) {
+  if (btnResetDb) btnResetDb.addEventListener("click", handleResetDb);
+  if (btnLoadAllRackets) btnLoadAllRackets.addEventListener("click", handleLoadAllRackets);
+  if (btnAddRacket) btnAddRacket.addEventListener("click", handleAddRacket);
+
+  if (adminRacketListEl && btnLoadAllRackets) {
     handleLoadAllRackets();
   }
 });

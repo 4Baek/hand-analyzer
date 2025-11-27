@@ -1,21 +1,21 @@
 /* ============================
-   기본 색 · 폰트 설정
+   기본 색 · 폰트
 ============================ */
 :root {
-  --color-bg: #0b1020;
-  --color-bg-card: #151a2c;
-  --color-bg-card-soft: #1b2236;
+  --color-bg: #020617;
+  --color-bg-card: #111827;
+  --color-bg-card-soft: #111827;
   --color-primary: #4f8cff;
   --color-primary-soft: rgba(79, 140, 255, 0.18);
-  --color-accent: #44d19f;
-  --color-border: #2a3250;
-  --color-border-soft: rgba(255, 255, 255, 0.05);
-  --color-text: #ffffff;
-  --color-text-subtle: #9ca3c7;
-  --color-error: #ff5c7a;
+  --color-accent: #22c55e;
+  --color-border: #1f2937;
+  --color-border-soft: rgba(255, 255, 255, 0.06);
+  --color-text: #f9fafb;
+  --color-text-subtle: #9ca3af;
+  --color-error: #fb7185;
 
   --radius-lg: 18px;
-  --radius-xl: 24px;
+  --radius-xl: 22px;
 
   --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.45);
 
@@ -38,12 +38,12 @@ body {
 
 body {
   font-family: var(--font-family);
-  background: radial-gradient(circle at top left, #1e293b 0, #020617 55%);
+  background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
   color: var(--color-text);
 }
 
 /* ============================
-   앱 레이아웃
+   레이아웃
 ============================ */
 
 .app {
@@ -65,25 +65,24 @@ body {
 .brand {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
 .brand-logo {
-  font-size: 32px;
+  font-size: 28px;
+  width: 42px;
+  height: 42px;
+  border-radius: 16px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 16px;
   background: radial-gradient(circle at 30% 20%, #38bdf8, #1d4ed8);
-  box-shadow: 0 10px 30px rgba(56, 189, 248, 0.35);
+  box-shadow: 0 12px 32px rgba(37, 99, 235, 0.55);
 }
 
 .brand-title {
-  font-size: 22px;
   margin: 0;
-  letter-spacing: 0.04em;
+  font-size: 22px;
 }
 
 .brand-subtitle {
@@ -97,12 +96,12 @@ body {
   max-width: 1100px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr);
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.1fr);
   gap: 24px;
 }
 
 /* ============================
-   카드 공통
+   카드 기본
 ============================ */
 
 .card {
@@ -117,8 +116,8 @@ body {
 }
 
 .card-title {
-  font-size: 17px;
   margin: 0;
+  font-size: 17px;
 }
 
 .card-description {
@@ -131,15 +130,78 @@ body {
    업로드 영역
 ============================ */
 
+/* 촬영 거리: 기존 설문 label / input 스타일 재사용 */
+.capture-row {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); /* upload-grid랑 동일한 2열 */
+  column-gap: 18px;                                   /* upload-grid와 동일 간격 */
+}
+
+/* 실제 필드는 1열만 사용 (오른쪽은 비워둠) */
+.capture-row .survey-field {
+  grid-column: 1 / 2;
+}
+
+.survey-field label {
+  font-size: 13px;
+  color: var(--color-text-subtle);
+}
+
+/* 2×2 그리드:
+   row1: [파일선택][미리보기 텍스트]
+   row2: [드롭존][미리보기 박스]
+*/
+.upload-grid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-auto-rows: auto;
+  column-gap: 18px;
+  row-gap: 8px;
+}
+
+.upload-cell {
+  width: 100%;
+}
+
+/* 1행: 버튼 · 텍스트가 같은 행 공유 → 자동으로 같은 높이 */
+.file-cell,
+.preview-title-cell {
+  display: flex;
+  align-items: center;
+}
+
+/* 파일 선택 버튼: 왼쪽 전체 폭 */
+.file-select-button {
+  width: 100%;
+  justify-content: center;
+}
+
+/* 미리보기 텍스트 */
+.preview-title {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-subtle);
+}
+
+/* 2행: 큰 박스 두 개를 같은 높이로 */
+.drop-cell .drop-zone,
+.preview-cell .preview-box {
+  height: 260px; /* 둘 다 동일 */
+}
+
+/* 드롭존 */
 .drop-zone {
-  border-radius: var(--radius-lg);
+  border-radius: 18px;
   border: 1px dashed var(--color-border);
-  background: rgba(15, 23, 42, 0.75);
+  background: rgba(15, 23, 42, 0.85);
   padding: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: border-color 0.2s ease, background 0.2s ease, transform 0.1s ease;
+  transition: border-color 0.18s ease, background 0.18s ease,
+    transform 0.08s ease;
 }
 
 .drop-zone-inner {
@@ -166,20 +228,50 @@ body {
 
 .drop-zone.dragover {
   border-color: var(--color-primary);
-  background: rgba(15, 23, 42, 0.92);
+  background: rgba(15, 23, 42, 0.96);
   transform: translateY(-1px);
 }
 
-/* ============================
-   버튼 / 입력 공통
-============================ */
+/* 미리보기 박스 */
+.preview-box {
+  border-radius: 18px;
+  border: 1px solid var(--color-border-soft);
+  background: rgba(15, 23, 42, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
 
+.preview-box img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: none;
+}
+
+.preview-placeholder {
+  font-size: 12px;
+  color: var(--color-text-subtle);
+  text-align: center;
+}
+
+/* 업로드 하단 */
 .upload-controls {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 4px;
+  margin-top: 10px;
 }
+
+.file-name {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--color-text-subtle);
+}
+
+/* ============================
+   버튼 / 입력
+============================ */
 
 .hidden-input {
   display: none;
@@ -203,120 +295,56 @@ body {
 .button-primary {
   background: linear-gradient(135deg, #4f46e5, #2563eb);
   color: #ffffff;
-  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.5);
+  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.55);
 }
 
 .button-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 14px 32px rgba(37, 99, 235, 0.6);
+  box-shadow: 0 14px 32px rgba(37, 99, 235, 0.62);
 }
 
 .button-secondary {
-  background: rgba(15, 23, 42, 0.9);
+  background: rgba(15, 23, 42, 0.95);
   color: var(--color-text);
   border: 1px solid var(--color-border-soft);
 }
 
 .button-secondary:hover {
   border-color: var(--color-primary);
-  background: rgba(15, 23, 42, 0.98);
+  background: rgba(15, 23, 42, 1);
 }
 
-.button-danger {
-  border: 1px solid rgba(248, 113, 113, 0.7);
-}
-
-.button.wide {
-  width: 100%;
-  padding: 12px;
-  font-size: 16px;
-}
-
-.file-name {
-  margin: 2px 0 0;
-  font-size: 12px;
-  color: var(--color-text-subtle);
-}
-
-/* 공통 입력 스타일 (select, input) */
 .input {
   padding: 9px 12px;
-  border-radius: var(--radius-lg);
+  border-radius: 18px;
   background: var(--color-bg-card-soft);
   border: 1px solid var(--color-border-soft);
   color: var(--color-text);
   font-size: 13px;
   font-family: var(--font-family);
   outline: none;
-  transition: 0.2s border-color ease, 0.2s background-color ease,
-    0.2s box-shadow ease;
+  transition: 0.18s border-color ease, 0.18s background-color ease,
+    0.18s box-shadow ease;
 }
 
 .input:focus {
   border-color: var(--color-primary);
-  background: rgba(255, 255, 255, 0.05);
-  box-shadow: 0 0 0 1px rgba(79, 140, 255, 0.3);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: 0 0 0 1px rgba(79, 140, 255, 0.35);
 }
 
-/* 숫자 입력 화살표 숨기기 */
+/* 숫자 인풋 스핀 제거 */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-
 input[type="number"] {
   -moz-appearance: textfield;
 }
 
-/* 셀렉트/옵션 색상 (다크테마 가독성) */
-select,
-select.option,
-select option {
-  color: #ffffff !important;
-  background-color: #1e1e1e !important;
-}
-
 /* ============================
-   미리보기
-============================ */
-
-.preview-wrapper {
-  margin-top: 8px;
-}
-
-.preview-title {
-  margin: 0 0 8px;
-  font-size: 13px;
-  color: var(--color-text-subtle);
-}
-
-.preview-box {
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border-soft);
-  background: rgba(15, 23, 42, 0.9);
-  min-height: 160px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.preview-box img {
-  max-width: 100%;
-  max-height: 260px;
-  display: none;
-  object-fit: contain;
-}
-
-.preview-placeholder {
-  font-size: 12px;
-  color: var(--color-text-subtle);
-}
-
-/* ============================
-   결과 카드 / 섹션
+   결과 섹션
 ============================ */
 
 .result-card {
@@ -328,17 +356,15 @@ select option {
 }
 
 .section-title {
-  margin: 0 0 6px;
+  margin: 0 0 4px;
   font-size: 14px;
 }
 
 .section-hint {
-  margin: 0 0 6px;
+  margin: 0 0 4px;
   font-size: 12px;
   color: var(--color-text-subtle);
 }
-
-/* 로딩 표시 */
 
 .loading {
   display: inline-flex;
@@ -366,8 +392,6 @@ select option {
   }
 }
 
-/* 경고/오류 박스 */
-
 .alert {
   border-radius: 10px;
   padding: 8px 10px;
@@ -378,13 +402,10 @@ select option {
 .alert-error {
   background: rgba(248, 113, 113, 0.08);
   color: #fecaca;
-  border: 1px solid rgba(248, 113, 113, 0.55);
+  border: 1px solid rgba(248, 113, 113, 0.6);
 }
 
-/* ============================
-   손 분석 결과
-============================ */
-
+/* 손 분석 결과 카드 */
 .metrics-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
@@ -394,7 +415,7 @@ select option {
 .metric-item {
   border-radius: 12px;
   padding: 8px 9px;
-  background: var(--color-bg-card-soft);
+  background: rgba(15, 23, 42, 0.95);
   border: 1px solid var(--color-border-soft);
 }
 
@@ -409,19 +430,15 @@ select option {
   font-weight: 600;
 }
 
-/* ============================
-   라켓 리스트
-============================ */
-
+/* 라켓 리스트 */
 .racket-list {
   display: grid;
-  grid-template-columns: 1fr;
   gap: 8px;
 }
 
 .racket-card {
   border-radius: 14px;
-  background: var(--color-bg-card-soft);
+  background: rgba(15, 23, 42, 0.96);
   border: 1px solid var(--color-border-soft);
   padding: 10px 11px;
   display: flex;
@@ -430,11 +447,10 @@ select option {
 }
 
 .racket-header {
-  /* 이름 / P / C / S / (삭제버튼) 5열 그리드 */
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 52px 52px 52px auto;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  column-gap: 16px;
+  gap: 12px;
 }
 
 .racket-name {
@@ -442,63 +458,17 @@ select option {
   font-weight: 600;
 }
 
-/* 메인 추천 화면에서 쓰는 일반 점수 텍스트용 */
 .racket-score {
   font-size: 12px;
   color: var(--color-accent);
-  text-align: right;
 }
 
-/* Admin 화면에서 P / C / S 한 칸씩 */
-.score-col {
-  font-size: 12px;
-  color: var(--color-accent);
-  text-align: center;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace;
-}
-
-/* P7 / C10 / S6 각각 한 칸씩 */
-.score-item {
-  min-width: 48px;
-  text-align: center;
-}
-
-.racket-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  margin-top: 2px;
-}
-
-.racket-tag {
-  border-radius: 999px;
-  padding: 2px 7px;
-  font-size: 10px;
-  background: rgba(148, 163, 184, 0.12);
-  color: #e5e7eb;
-}
-
-/* ============================
-   설문(Survey) 섹션
-============================ */
-
+/* 설문 그리드 */
 .survey-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px 16px;
   margin-top: 6px;
-}
-
-.survey-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.survey-field label {
-  font-size: 13px;
-  color: var(--color-text-subtle);
 }
 
 .survey-options {
@@ -512,11 +482,9 @@ select option {
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: var(--color-text);
 }
 
-/* 툴팁 아이콘 */
-
+/* 툴팁 */
 .help-icon {
   display: inline-flex;
   align-items: center;
@@ -531,29 +499,26 @@ select option {
   background: rgba(255, 255, 255, 0.18);
   cursor: pointer;
   position: relative;
-  transition: background 0.2s ease;
 }
 
 .help-icon:hover {
   background: rgba(255, 255, 255, 0.35);
 }
 
-/* 툴팁 말풍선 */
-
 .help-icon:hover::after {
   content: attr(data-tooltip);
   position: absolute;
   top: 22px;
   right: 0;
-  width: 220px;
+  width: 230px;
   padding: 10px 12px;
   border-radius: 10px;
   background: rgba(30, 41, 59, 0.96);
-  color: #e2e8f0;
+  color: #e5e7eb;
   font-size: 11px;
   line-height: 1.4;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
   z-index: 20;
 }
 
@@ -567,14 +532,11 @@ select option {
   border-color: transparent transparent rgba(30, 41, 59, 0.96) transparent;
 }
 
-/* ============================
-   스트링 추천 박스
-============================ */
-
+/* 스트링 추천 박스 */
 .string-box {
-  border-radius: var(--radius-lg);
+  border-radius: 16px;
   border: 1px solid var(--color-border-soft);
-  background: rgba(15, 23, 42, 0.9);
+  background: rgba(15, 23, 42, 0.96);
   padding: 10px 12px;
   font-size: 13px;
   display: flex;
@@ -589,90 +551,15 @@ select option {
 .string-reason {
   font-size: 12px;
   color: var(--color-text-subtle);
-  line-height: 1.5;
 }
 
-/* ============================
-   Admin 화면
-============================ */
-
-.admin-card {
-  grid-column: 1 / -1;
-}
-
-.admin-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-
-.admin-status {
-  font-size: 11px;
-  color: var(--color-text-subtle);
-  margin-bottom: 6px;
-}
-
-.admin-status-error {
-  color: #fecaca;
-}
-
-.admin-add-form {
-  margin-top: 20px;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-soft);
+/* 기타 */
+.survey-actions {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 6px;
+  align-items: flex-start;
 }
-
-.form-row {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-width: 180px;
-}
-
-.form-group.small {
-  max-width: 150px;
-}
-
-.form-group.full {
-  flex: 1 1 100%;
-}
-
-.form-group label {
-  margin-bottom: 6px;
-  font-size: 14px;
-  color: var(--color-text-subtle);
-}
-
-.admin-add-form .input {
-  padding: 10px 14px;
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-card-soft);
-  border: 1px solid var(--color-border-soft);
-  color: var(--color-text);
-  font-size: 14px;
-}
-
-.admin-add-form .input:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  background: rgba(255, 255, 255, 0.05);
-}
-
-/* ============================
-   푸터 / 유틸 / 반응형
-============================ */
 
 .app-footer {
   max-width: 1100px;
@@ -688,7 +575,6 @@ select option {
 }
 
 /* 반응형 */
-
 @media (max-width: 900px) {
   .app {
     padding: 18px;
@@ -706,5 +592,9 @@ select option {
 
   .card {
     padding: 16px 15px 18px;
+  }
+
+  .upload-grid {
+    grid-template-columns: 1fr;
   }
 }
