@@ -7,19 +7,35 @@ from services.racket_matching_service import match_rackets
 
 def recommend_rackets_from_metrics(payload: dict) -> dict:
     """
-    hand_api.py 에서 호출하는 최종 추천 함수.
-    손 분석 결과 + 설문 데이터를 기반으로 전체 로직을 실행.
+    /recommend-rackets 엔드포인트에서 사용하는 최종 추천 함수.
+
+    프런트에서 오는 payload 형태를 두 가지 모두 지원:
+    1) { handMetrics: {...}, survey: {...} }
+    2) { handLength: ..., handWidth: ..., ..., survey: {...} }  (현재 recommend.js 구조)
     """
-    hand_metrics = payload.get("handMetrics")
+    payload = payload or {}
+
     survey = payload.get("survey") or {}
+
+    # 1) handMetrics 키가 있으면 그걸 우선 사용
+    hand_metrics = payload.get("handMetrics")
+    if not isinstance(hand_metrics, dict):
+        # 2) 없으면 survey를 제외한 나머지 상위 키들을 메트릭스로 간주
+        hand_metrics = {
+            k: v for k, v in payload.items()
+            if k != "survey"
+        }
 
     hand_profile = build_hand_profile(hand_metrics)
     style_profile = build_playstyle_profile(survey)
 
     match = match_rackets(hand_profile, style_profile)
 
+    # 프런트 recommend.js는 data.rackets / data.string을 기대하므로
+    # recommended 안에 넣지 말고 최상위로 풀어서 반환
     return {
         "handProfile": hand_profile,
         "styleProfile": style_profile,
-        "recommended": match,
+        "rackets": match.get("rackets", []),
+        "string": match.get("string"),
     }
