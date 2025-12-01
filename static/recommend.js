@@ -547,6 +547,23 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       card.appendChild(reasonBox);
 
+      // 예약하기(렌트) 버튼 (URL이 있을 때만 활성)
+      if (racket.url) {
+        const reserveRow = document.createElement("div");
+        reserveRow.className = "racket-reserve-row";
+
+        const reserveBtn = document.createElement("button");
+        reserveBtn.className = "button button-primary button-small";
+        reserveBtn.textContent = "예약하기(렌트)";
+        reserveBtn.addEventListener("click", () => {
+          // 새 창이 아니라 동일 탭 이동
+          window.location.href = racket.url;
+        });
+
+        reserveRow.appendChild(reserveBtn);
+        card.appendChild(reserveRow);
+      }
+
       container.appendChild(card);
     });
   }

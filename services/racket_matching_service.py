@@ -317,6 +317,7 @@ def match_rackets(hand_profile: dict, style_profile: dict):
                 "spinScore": spin_score,
                 "score": float(score),  # rawScore 후보
                 "reason": reason_text,
+                "url":r.url,
             }
         )
 

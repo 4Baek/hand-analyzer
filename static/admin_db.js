@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const adminNewSpin = document.getElementById("adminNewSpin");
   const adminNewWeight = document.getElementById("adminNewWeight");
   const adminNewTags = document.getElementById("adminNewTags");
+  const adminNewUrl = document.getElementById("adminNewUrl");
   const btnAddRacket = document.getElementById("btnAddRacket");
 
   function setAdminStatus(message, isError = false) {
@@ -37,8 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return [];
   }
 
-  // 목록 렌더링
-    // 라켓 목록 렌더링
+  // 라켓 목록 렌더링
   function renderRacketList(data) {
     const container = adminRacketListEl;
     if (!container) return;
@@ -67,8 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const name = document.createElement("div");
       name.className = "racket-name";
-      const idLabel =
-        typeof racket.id === "number" ? `${racket.id} ` : "";
+      const idLabel = typeof racket.id === "number" ? `${racket.id} ` : "";
       name.textContent = `${idLabel}${racket.name || "이름 없음"}`;
       header.appendChild(name);
 
@@ -159,10 +158,17 @@ document.addEventListener("DOMContentLoaded", () => {
         card.appendChild(tagsBox);
       }
 
+      /* ---------- 예약 URL 표시 (있을 때만) ---------- */
+      if (racket.url) {
+        const urlRow = document.createElement("div");
+        urlRow.className = "racket-info-row";
+        urlRow.textContent = `예약 URL: ${racket.url}`;
+        card.appendChild(urlRow);
+      }
+
       container.appendChild(card);
     });
   }
-
 
   // 삭제
   async function deleteRacketById(id) {
@@ -225,6 +231,7 @@ document.addEventListener("DOMContentLoaded", () => {
       spin: adminNewSpin?.value ? Number(adminNewSpin.value) : null,
       weight: adminNewWeight?.value ? Number(adminNewWeight.value) : null,
       tags: adminNewTags?.value || "",
+      url: adminNewUrl?.value.trim() || null,
     };
 
     try {
@@ -256,6 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (adminNewSpin) adminNewSpin.value = "";
       if (adminNewWeight) adminNewWeight.value = "";
       if (adminNewTags) adminNewTags.value = "";
+      if (adminNewUrl) adminNewUrl.value = "";
 
       await handleLoadAllRackets();
     } catch (e) {

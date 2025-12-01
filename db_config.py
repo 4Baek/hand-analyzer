@@ -291,6 +291,8 @@ class Racket(db.Model):
     tags = db.Column(db.String(300), nullable=True)
     is_active = db.Column(db.Boolean, nullable=False, default=True)
 
+    url = db.Column(db.String(255), nullable=True)
+
     def to_dict(self):
         """
         admin_db.js, recommend.js에서 공통으로 쓰는 JSON 형태.
@@ -331,6 +333,7 @@ class Racket(db.Model):
             "levelMin": self.level_min,
             "levelMax": self.level_max,
             "isActive": self.is_active,
+            "url": self.url,
         }
 
 
