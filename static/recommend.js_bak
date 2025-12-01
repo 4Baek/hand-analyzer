@@ -1,8 +1,8 @@
 // recommend.js
+
 const RACKET_RECOMMEND_URL = "/recommend-rackets";
 
 document.addEventListener("DOMContentLoaded", () => {
-  // 파일/업로드 관련 엘리먼트
   const fileInput = document.getElementById("handImage");
   const uploadBtn = document.getElementById("uploadBtn");
   const fileNameEl = document.getElementById("fileName");
@@ -10,19 +10,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const previewPlaceholder = document.getElementById("previewPlaceholder");
   const dropZone = document.getElementById("dropZone");
 
-  // 상태/결과 영역
   const loadingEl = document.getElementById("loading");
   const errorBox = document.getElementById("errorBox");
   const handMetricsEl = document.getElementById("handMetrics");
   const racketListEl = document.getElementById("racketList");
-  const stringRecommendationEl = document.getElementById(
-    "stringRecommendation"
-  );
+  const stringRecommendationEl = document.getElementById("stringRecommendation");
 
-  // 촬영 정보
-  const captureDistanceInput = document.getElementById(
-    "captureDistanceInput"
-  );
+  // 손 분석용 촬영 정보 (거리만 사용)
+  const captureDistanceInput = document.getElementById("captureDistanceInput");
 
   // 설문 요소
   const surveyLevel = document.getElementById("surveyLevel");
@@ -35,7 +30,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const recommendBtn = document.getElementById("recommendBtn");
 
-  // 상태
+  // (있으면) DB 관리 관련 요소 – index.html에서는 사용 안 해도 무방
+  const btnResetDb = document.getElementById("btnResetDb");
+  const btnLoadAllRackets = document.getElementById("btnLoadAllRackets");
+  const adminStatusEl = document.getElementById("adminStatus");
+  const adminRacketListEl = document.getElementById("adminRacketList");
+
+  const adminNewName = document.getElementById("adminNewName");
+  const adminNewBrand = document.getElementById("adminNewBrand");
+  const adminNewPower = document.getElementById("adminNewPower");
+  const adminNewControl = document.getElementById("adminNewControl");
+  const adminNewSpin = document.getElementById("adminNewSpin");
+  const adminNewWeight = document.getElementById("adminNewWeight");
+  const adminNewTags = document.getElementById("adminNewTags");
+  const btnAddRacket = document.getElementById("btnAddRacket");
+
   let selectedFile = null;
   let lastHandMetrics = null;
 
@@ -47,8 +56,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (loadingEl) {
       loadingEl.classList.toggle("hidden", !isLoading);
     }
-    if (uploadBtn) uploadBtn.disabled = isLoading;
-    if (recommendBtn) recommendBtn.disabled = isLoading;
+    if (uploadBtn) {
+      uploadBtn.disabled = isLoading;
+    }
+    if (recommendBtn) {
+      recommendBtn.disabled = isLoading;
+    }
   }
 
   function showError(message) {
@@ -123,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     ["dragleave", "drop"].forEach((eventName) => {
-      dropZone.addEventListener(eventName, (e) => {
+      dropZone.addListener = dropZone.addEventListener(eventName, (e) => {
         e.preventDefault();
         e.stopPropagation();
         dropZone.classList.remove("dragover");
@@ -206,7 +219,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // -----------------------------
-  // 손 분석 결과 렌더링
+  // 손 분석 결과 렌더링 (mm/cm 포함)
   // -----------------------------
 
   function renderHandMetrics(metrics) {
@@ -317,9 +330,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const survey = collectSurvey();
       const baseMetrics =
         metrics && typeof metrics === "object" ? metrics : {};
-
-      // 백엔드 hand_service.recommend_rackets_from_metrics 와 계약:
-      // - handLength, handWidth, fingerRatios 등 평탄한 메트릭 + survey 객체
       const payload = Object.assign({}, baseMetrics, { survey });
 
       const res = await fetch(RACKET_RECOMMEND_URL, {
@@ -337,16 +347,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const data = await res.json();
+      renderRacketList(data, racketListEl);
 
-      // hand_service.py 반환 형식:
-      // { rackets: [...], string: {...}, handProfile: {...} }
-      if (data.rackets) {
-        renderRacketList(data.rackets, racketListEl);
-      } else {
-        renderRacketList([], racketListEl);
-      }
-
-      if (data.string || data.stringRecommendation) {
+      if (data && (data.string || data.stringRecommendation)) {
         renderStringRecommendation(
           data.string || data.stringRecommendation
         );
@@ -440,21 +443,24 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // -----------------------------
-  // 라켓 리스트 렌더링
+  // 라켓 리스트 렌더링 (공통)
   // -----------------------------
 
-  function renderRacketList(data, container) {
+  function renderRacketList(data, container, options = {}) {
     if (!container) return;
+
+    const { showDelete = false, onDelete = null } = options;
 
     container.innerHTML = "";
 
-    const rackets = Array.isArray(data)
-      ? data
-      : Array.isArray(data?.rackets)
-      ? data.rackets
-      : [];
+    if (!data) {
+      container.textContent = "라켓 데이터가 없습니다.";
+      return;
+    }
 
-    if (rackets.length === 0) {
+    const rackets = Array.isArray(data.rackets) ? data.rackets : data;
+
+    if (!Array.isArray(rackets) || rackets.length === 0) {
       container.textContent = "라켓 데이터가 없습니다.";
       return;
     }
@@ -488,6 +494,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
       header.appendChild(name);
       header.appendChild(score);
+
+      // 관리 화면에서만 삭제 버튼 추가
+      if (showDelete && typeof racket.id === "number" && onDelete) {
+        const delBtn = document.createElement("button");
+        delBtn.className =
+          "button button-secondary button-small button-danger";
+        delBtn.textContent = "삭제";
+        delBtn.addEventListener("click", () => onDelete(racket.id));
+        header.appendChild(delBtn);
+      }
+
       card.appendChild(header);
 
       const tagsBox = document.createElement("div");
@@ -516,5 +533,155 @@ document.addEventListener("DOMContentLoaded", () => {
 
       container.appendChild(card);
     });
+  }
+
+  // -----------------------------
+  // (선택) DB 관리 상태/함수 – admin.html에서만 의미 있음
+  // -----------------------------
+
+  function setAdminStatus(message, isError = false) {
+    if (!adminStatusEl) return;
+    adminStatusEl.textContent = message;
+    adminStatusEl.classList.toggle("admin-status-error", !!isError);
+  }
+
+  async function handleResetDb() {
+    if (!btnResetDb) return;
+    if (!confirm("정말로 DB를 초기화하고 샘플 데이터로 다시 채울까요?")) {
+      return;
+    }
+
+    try {
+      setAdminStatus("DB 초기화 요청 중...");
+      const res = await fetch("/admin/reset-db", {
+        method: "POST",
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        setAdminStatus(`DB 초기화 실패 (${res.status}) : ${text}`, true);
+        return;
+      }
+
+      const data = await res.json();
+      setAdminStatus(data.message || "DB가 초기화되었습니다.");
+      await handleLoadAllRackets();
+    } catch (e) {
+      setAdminStatus(`DB 초기화 에러: ${e}`, true);
+    }
+  }
+
+  async function handleLoadAllRackets() {
+    if (!btnLoadAllRackets || !adminRacketListEl) return;
+
+    try {
+      setAdminStatus("DB 라켓 목록 조회 중...");
+      const res = await fetch("/admin/rackets");
+
+      if (!res.ok) {
+        const text = await res.text();
+        setAdminStatus(`DB 라켓 조회 실패 (${res.status}) : ${text}`, true);
+        return;
+      }
+
+      const data = await res.json();
+      setAdminStatus("DB 라켓 목록 조회 완료.");
+      renderRacketList(data, adminRacketListEl, {
+        showDelete: true,
+        onDelete: deleteRacketById,
+      });
+    } catch (e) {
+      setAdminStatus(`DB 라켓 조회 에러: ${e}`, true);
+    }
+  }
+
+  async function handleAddRacket() {
+    if (!btnAddRacket) return;
+
+    const name = adminNewName?.value.trim();
+    const brand = adminNewBrand?.value.trim();
+
+    if (!name || !brand) {
+      setAdminStatus("라켓 이름과 브랜드는 필수입니다.", true);
+      return;
+    }
+
+    const payload = {
+      name,
+      brand,
+      power: adminNewPower?.value,
+      control: adminNewControl?.value,
+      spin: adminNewSpin?.value,
+      weight: adminNewWeight?.value,
+      tags: adminNewTags?.value,
+    };
+
+    try {
+      setAdminStatus("라켓 추가 중...");
+      const res = await fetch("/admin/rackets", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        setAdminStatus(`라켓 추가 실패 (${res.status}) : ${text}`, true);
+        return;
+      }
+
+      const data = await res.json();
+      setAdminStatus(
+        `라켓 추가 완료: ${data.racket?.name || "새 라켓"}`,
+        false
+      );
+
+      adminNewName.value = "";
+      adminNewBrand.value = "";
+      if (adminNewPower) adminNewPower.value = "";
+      if (adminNewControl) adminNewControl.value = "";
+      if (adminNewSpin) adminNewSpin.value = "";
+      if (adminNewWeight) adminNewWeight.value = "";
+      if (adminNewTags) adminNewTags.value = "";
+
+      await handleLoadAllRackets();
+    } catch (e) {
+      setAdminStatus(`라켓 추가 에러: ${e}`, true);
+    }
+  }
+
+  async function deleteRacketById(id) {
+    if (!btnLoadAllRackets) return;
+    if (!confirm(`ID ${id} 라켓을 삭제할까요?`)) {
+      return;
+    }
+
+    try {
+      setAdminStatus(`라켓 삭제 중... (ID: ${id})`);
+      const res = await fetch(`/admin/rackets/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        setAdminStatus(`라켓 삭제 실패 (${res.status}) : ${text}`, true);
+        return;
+      }
+
+      setAdminStatus(`라켓 삭제 완료 (ID: ${id})`);
+      await handleLoadAllRackets();
+    } catch (e) {
+      setAdminStatus(`라켓 삭제 에러: ${e}`, true);
+    }
+  }
+
+  if (btnResetDb) btnResetDb.addEventListener("click", handleResetDb);
+  if (btnLoadAllRackets) btnLoadAllRackets.addEventListener("click", handleLoadAllRackets);
+  if (btnAddRacket) btnAddRacket.addEventListener("click", handleAddRacket);
+
+  if (adminRacketListEl && btnLoadAllRackets) {
+    handleLoadAllRackets();
   }
 });
