@@ -448,19 +448,31 @@ input[type="number"] {
 
 .racket-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
 }
 
 .racket-name {
-  font-size: 13px;
   font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .racket-score {
   font-size: 12px;
   color: var(--color-accent);
+}
+
+/* 추천 이유 텍스트 */
+.racket-reason {
+  margin-top: 4px;
+  font-size: 0.78rem;
+  color: var(--color-text-subtle);
+  line-height: 1.4;
 }
 
 /* 설문 그리드 */
@@ -658,4 +670,341 @@ input[type="number"] {
 
 .admin-racket-list {
   margin-top: 8px;
+}
+
+/* ===== Racket DB Admin 레이아웃 개선 ===== */
+
+/* 메인 영역을 좀 더 넓게 사용 */
+.app-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 24px 40px;
+}
+
+/* 카드가 너무 좁지 않게 전체 폭 활용 */
+.admin-card {
+  width: 100%;
+  max-width: none;
+  margin-top: 24px;
+}
+
+/* 상단 제목 + 버튼을 좌우로 정렬 */
+.admin-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* 2컬럼 레이아웃: 왼쪽(폼) / 오른쪽(목록) */
+.admin-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.admin-column {
+  width: 100%;
+}
+
+/* 넓은 화면에서는 2컬럼 그리드로 */
+@media (min-width: 960px) {
+  .admin-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 28px;
+    align-items: flex-start;
+  }
+
+  .admin-card-header {
+    margin-bottom: 16px;
+  }
+
+  .result-section {
+    margin-top: 0;
+  }
+}
+
+/* 라켓 카드 목록이 세로로 너무 퍼지지 않도록 카드 간 간격만 정리 */
+.admin-racket-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* JS에서 쓰는 카드/태그 스타일이 없다면 기본값 */
+.racket-card {
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.racket-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.racket-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.score-col {
+  display: none;
+}
+
+.racket-info-row {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  margin-bottom: 4px;
+}
+
+.racket-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.racket-tag {
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  opacity: 0.9;
+}
+
+/* ================================
+   Admin 2-Column Layout (65:35)
+   ================================ */
+
+/* 전체 메인 레이아웃을 좌우로 배치 */
+.app-main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: row;      /* 좌우 배치 */
+  gap: 24px;
+}
+
+/* 섹션 1: 라켓 목록 (65%) */
+.admin-section-1 {
+  flex: 0 0 65%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 섹션 2: 라켓 관리 (35%) */
+.admin-section-2 {
+  flex: 0 0 35%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 반응형 - 모바일에서는 다시 세로로 */
+@media (max-width: 900px) {
+  .app-main {
+    flex-direction: column;
+  }
+
+  .admin-section-1,
+  .admin-section-2 {
+    flex: 1 1 100%;
+  }
+}
+
+/* ===== Admin 전체 레이아웃: 좌우 2컬럼, 한 화면에 수납 ===== */
+
+.app-main {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 16px 20px 32px;
+  display: flex;
+  flex-direction: row;
+  gap: 16px; /* 두 섹션 간 거리 줄임 */
+}
+
+/* 좌측 목록: 60%, 우측 추가: 40% 정도 */
+.admin-section-1 {
+  flex: 0 0 60%;
+}
+
+.admin-section-2 {
+  flex: 0 0 40%;
+}
+
+/* 모바일에서는 다시 세로로 */
+@media (max-width: 1024px) {
+  .app-main {
+    flex-direction: column;
+  }
+  .admin-section-1,
+  .admin-section-2 {
+    flex: 1 1 100%;
+  }
+}
+
+/* 카드 여백 줄이기 */
+.admin-card {
+  width: 100%;
+  max-width: none;
+  padding: 14px 18px;
+  margin-top: 10px;
+}
+
+/* 제목/버튼 영역 압축 */
+.admin-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.card-title {
+  margin-bottom: 4px;
+}
+
+/* 라켓 추가 폼 여백 줄이기 */
+.admin-add-form {
+  margin-top: 8px;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.form-group {
+  flex: 1 1 0;
+}
+
+.form-group.small {
+  max-width: 100px;
+}
+
+.form-group.full {
+  flex: 1 1 100%;
+}
+
+/* 목록 카드 스타일 + 정보 많이 보여주기 위한 압축 스타일 */
+.admin-racket-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.racket-card {
+  border-radius: 12px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.racket-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) repeat(3, auto) auto;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.racket-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.score-col {
+  font-size: 0.78rem;
+  opacity: 0.85;
+}
+
+.button-small {
+  padding: 4px 10px;
+  font-size: 0.75rem;
+}
+
+/* 브랜드/무게 한 줄 */
+.racket-info-row {
+  font-size: 0.78rem;
+  opacity: 0.85;
+  margin-bottom: 2px;
+}
+
+/* 스펙 줄: head_size / length / SW / RA / 패턴 / 빔 */
+.racket-spec-row {
+  font-size: 0.76rem;
+  opacity: 0.9;
+  margin-bottom: 4px;
+}
+
+/* 태그들 */
+.racket-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.racket-tag {
+  font-size: 0.72rem;
+  padding: 2px 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  opacity: 0.9;
+}
+
+/* ----------------------------
+   설문용 select 스타일 개선
+   ---------------------------- */
+
+/* 공통 셀렉트 입력 */
+.select-input {
+  cursor: pointer;
+  padding-right: 34px; /* 화살표 자리 확보 */
+}
+
+/* 기본 셀렉트의 OS 스타일 제거 + 화살표 커스텀 */
+.select-input {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  position: relative;
+}
+
+/* 화살표 표시 */
+.select-input {
+  background-image: linear-gradient(
+      45deg,
+      transparent 50%,
+      #9ca3af 50%
+    ),
+    linear-gradient(135deg, #9ca3af 50%, transparent 50%);
+  background-position: right 14px center, right 8px center;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+/* 옵션 리스트 색감을 다크테마에 맞게 */
+.select-input option {
+  background-color: #020617;
+  color: #f9fafb;
+}
+
+/* 포커스 시 테두리/그림자 강조 */
+.select-input:focus {
+  border-color: var(--color-primary);
+  background-color: rgba(15, 23, 42, 0.98);
+  box-shadow: 0 0 0 1px rgba(79, 140, 255, 0.5);
 }

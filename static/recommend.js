@@ -15,14 +15,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const errorBox = document.getElementById("errorBox");
   const handMetricsEl = document.getElementById("handMetrics");
   const racketListEl = document.getElementById("racketList");
-  const stringRecommendationEl = document.getElementById(
-    "stringRecommendation"
-  );
+  const stringRecommendationEl = document.getElementById("stringRecommendation");
 
   // 촬영 정보
-  const captureDistanceInput = document.getElementById(
-    "captureDistanceInput"
-  );
+  const captureDistanceInput = document.getElementById("captureDistanceInput");
 
   // 설문 요소
   const surveyLevel = document.getElementById("surveyLevel");
@@ -245,9 +241,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // mm/cm 추정값
     if (typeof handLengthMm === "number") {
       const cm =
-        typeof handLengthCm === "number"
-          ? handLengthCm
-          : handLengthMm / 10.0;
+        typeof handLengthCm === "number" ? handLengthCm : handLengthMm / 10.0;
       items.push({
         label: "손 길이 (추정값)",
         value: `${handLengthMm.toFixed(1)} mm / ${cm.toFixed(1)} cm`,
@@ -315,8 +309,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function requestRacketRecommendation(metrics) {
     try {
       const survey = collectSurvey();
-      const baseMetrics =
-        metrics && typeof metrics === "object" ? metrics : {};
+      const baseMetrics = metrics && typeof metrics === "object" ? metrics : {};
 
       // 백엔드 hand_service.recommend_rackets_from_metrics 와 계약:
       // - handLength, handWidth, fingerRatios 등 평탄한 메트릭 + survey 객체
@@ -347,9 +340,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       if (data.string || data.stringRecommendation) {
-        renderStringRecommendation(
-          data.string || data.stringRecommendation
-        );
+        renderStringRecommendation(data.string || data.stringRecommendation);
       } else if (stringRecommendationEl) {
         stringRecommendationEl.innerHTML =
           '<span class="metric-label">스트링 추천 정보를 받지 못했습니다.</span>';
@@ -474,7 +465,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const score = document.createElement("div");
       score.className = "racket-score";
       if (typeof racket.score === "number") {
-        score.textContent = `적합도 ${racket.score.toFixed(1)}점`;
+        // 100점은 소수점 없이, 나머지는 소수 첫째 자리까지
+        if (Math.abs(racket.score - 100) < 0.05) {
+          score.textContent = "적합도 100점";
+        } else {
+          score.textContent = `적합도 ${racket.score.toFixed(1)}점`;
+        }
       } else if (
         typeof racket.power === "number" &&
         typeof racket.control === "number"
@@ -490,29 +486,66 @@ document.addEventListener("DOMContentLoaded", () => {
       header.appendChild(score);
       card.appendChild(header);
 
+      // ----- 스펙 태그: name / head_size_sq_in / string_pattern / unstrung_weight_g -----
       const tagsBox = document.createElement("div");
       tagsBox.className = "racket-tags";
 
-      const brand = racket.brand || racket.manufacturer;
-      if (brand) {
+      const specName =
+        racket.name || racket.model || racket.racketName || null;
+
+      const headSize =
+        typeof racket.headSize === "number"
+          ? racket.headSize
+          : typeof racket.head_size_sq_in === "number"
+          ? racket.head_size_sq_in
+          : null;
+
+      const stringPattern =
+        racket.stringPattern || racket.string_pattern || null;
+
+      const unstrungWeight =
+        typeof racket.unstrungWeight === "number"
+          ? racket.unstrungWeight
+          : typeof racket.unstrung_weight_g === "number"
+          ? racket.unstrung_weight_g
+          : typeof racket.weight === "number"
+          ? racket.weight
+          : null;
+
+      function appendTag(text) {
+        if (!text) return;
         const tag = document.createElement("span");
         tag.className = "racket-tag";
-        tag.textContent = brand;
+        tag.textContent = text;
         tagsBox.appendChild(tag);
       }
 
+      // DB 컬럼 기준으로 태그 구성
+      appendTag(specName);
+      if (headSize !== null) appendTag(`${headSize} sq.in`);
+      appendTag(stringPattern);
+      if (unstrungWeight !== null) appendTag(`${unstrungWeight} g`);
+
+      // 백엔드에서 별도 tags 배열을 내려주는 경우도 함께 표시
       if (Array.isArray(racket.tags)) {
-        racket.tags.forEach((t) => {
-          const tag = document.createElement("span");
-          tag.className = "racket-tag";
-          tag.textContent = t;
-          tagsBox.appendChild(tag);
-        });
+        racket.tags.forEach((t) => appendTag(t));
       }
 
       if (tagsBox.childElementCount > 0) {
         card.appendChild(tagsBox);
       }
+
+      // 추천 이유 영역
+      const reasonBox = document.createElement("div");
+      reasonBox.className = "racket-reason";
+      if (racket.reason) {
+        reasonBox.textContent = racket.reason;
+      } else {
+        // 기본 문구만, '(추측입니다)' 제거
+        reasonBox.textContent =
+          "손 크기와 플레이 스타일을 종합해 추천 목록에 포함된 라켓입니다.";
+      }
+      card.appendChild(reasonBox);
 
       container.appendChild(card);
     });

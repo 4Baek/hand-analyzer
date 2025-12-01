@@ -1,5 +1,3 @@
-# services/racket_matching_service.py
-
 from db_config import Racket
 
 
@@ -72,7 +70,7 @@ def _compute_string_recommendation(hand_profile: dict, style_profile: dict) -> d
     if effective_type == "multi":
         reasons.append("팔의 편안함을 고려해 멀티 계열을 추천했습니다.")
 
-    reason_text = " ".join(reasons) if reasons else "설문과 손 프로파일을 종합해 기본 값에 가깝게 설정했습니다. (추측입니다)"
+    reason_text = " ".join(reasons) if reasons else "설문과 손 프로파일을 종합해 기본 값에 가깝게 설정했습니다. "
 
     return {
         "tensionMainKg": tension_main_kg,
@@ -81,6 +79,95 @@ def _compute_string_recommendation(hand_profile: dict, style_profile: dict) -> d
         "stringLabel": label,
         "reason": reason_text,
     }
+
+
+def _build_racket_reason(
+    hand_profile: dict,
+    style_profile: dict,
+    *,
+    head_size,
+    unstrung_weight,
+    swingweight,
+    stiffness_ra,
+    string_pattern,
+    power_score,
+    control_score,
+    spin_score,
+) -> str:
+    """
+    한 개 라켓에 대해 손/플레이스타일/스펙을 근거로 추천 이유 문장을 만든다. 
+    """
+    size_cat = hand_profile.get("handSizeCategory") or hand_profile.get("sizeGroup")
+    pain = style_profile.get("pain")
+    styles = style_profile.get("styles") or []
+    level = style_profile.get("level")
+    weight_pref = style_profile.get("weightPreference")
+
+    parts = []
+
+    # 1) 손 크기 + 무게 선호
+    if isinstance(unstrung_weight, (int, float)):
+        if size_cat in ("SMALL", "small"):
+            if unstrung_weight <= 290:
+                parts.append("작은 손 기준에서도 부담이 덜한 비교적 가벼운 무게라 스윙하기 편한 편입니다. ")
+            else:
+                parts.append("무게는 약간 있는 편이지만 작은 손에서도 안정적인 타구감을 줄 수 있는 스펙입니다. ")
+        elif size_cat in ("LARGE", "large"):
+            if unstrung_weight >= 295:
+                parts.append("손이 큰 편이어서 약간 묵직한 무게가 헤드 안정성을 높여주는 구성이어서 추천했습니다. ")
+            else:
+                parts.append("손 크기에 비해 가벼운 편이라 빠른 스윙과 민첩한 플레이에 유리하다고 판단했습니다. ")
+
+        if weight_pref == "light" and unstrung_weight <= 290:
+            parts.append("설문에서 가벼운 라켓을 선호해 이 무게대 라켓을 우선 배치했습니다. ")
+        if weight_pref == "heavy" and unstrung_weight >= 300:
+            parts.append("묵직한 라켓을 선호하는 응답을 반영해 무게감 있는 스펙을 선택했습니다. ")
+
+    # 2) 통증 + 강성/스윙웨이트
+    if pain == "often":
+        if isinstance(stiffness_ra, (int, float)) and stiffness_ra <= 64:
+            parts.append("프레임 강성이 낮은 편이라 임팩트 시 팔·손목에 전달되는 충격을 줄여줍니다. ")
+        if isinstance(swingweight, (int, float)) and swingweight <= 330:
+            parts.append("스윙웨이트가 과하지 않아 장시간 플레이에서도 팔에 부담이 덜한 편입니다. ")
+    elif pain == "none":
+        if isinstance(stiffness_ra, (int, float)) and stiffness_ra >= 66:
+            parts.append("탄성 있는 프레임 특성으로 강하게 휘둘렀을 때 파워를 내기 좋은 구성이어서 선택했습니다. ")
+
+    # 3) 플레이 스타일 + 헤드사이즈/점수/패턴
+    if "control" in styles:
+        if isinstance(head_size, (int, float)) and head_size <= 100:
+            parts.append("헤드 사이즈가 비교적 작아 컨트롤 위주의 플레이에 유리한 구조입니다. ")
+        if control_score >= power_score:
+            parts.append("내부 평가에서 컨트롤 점수가 높게 나와 라인 공략에 강점을 보이는 라켓입니다. ")
+
+    if "power" in styles:
+        if isinstance(head_size, (int, float)) and head_size >= 100:
+            parts.append("조금 더 넉넉한 헤드 사이즈로 스윗스팟이 넓어 힘을 실어 치기 쉬운 편입니다. ")
+        if power_score >= control_score:
+            parts.append("파워 계열 점수가 높아 깊게 밀어 넣는 스트로크에 강점을 보입니다. ")
+
+    if "spin" in styles:
+        if string_pattern and ("16x19" in string_pattern or "16x18" in string_pattern):
+            parts.append("16x19 계열 스트링 패턴으로 스핀량을 확보하기 좋은 구조입니다. ")
+        elif string_pattern:
+            parts.append("스트링 패턴 특성을 기준으로 스핀 성능이 준수하게 평가된 라켓입니다. ")
+        if spin_score >= power_score and spin_score >= control_score:
+            parts.append("내부 평가에서 스핀 관련 점수가 상대적으로 높게 나왔습니다. ")
+
+    # 4) 레벨 + 헤드사이즈
+    if level in ("beginner", "intermediate"):
+        if isinstance(head_size, (int, float)) and head_size >= 100:
+            parts.append("헤드가 넓은 편이라 미스 히트에도 관대한 편으로, 초·중급 레벨에서 안정감을 주기 좋습니다. ")
+    elif level in ("advanced", "expert"):
+        if isinstance(head_size, (int, float)) and head_size <= 100:
+            parts.append("상급자 기준으로 스윗스팟이 집중된 헤드 사이즈라 정교한 컨트롤 플레이에 적합합니다. ")
+
+    # 5) 기본 근거
+    if not parts:
+        parts.append("손 크기, 통증 여부, 플레이 스타일과 라켓 스펙을 종합했을 때 내부 점수 상위권에 위치해 추천 목록에 포함되었습니다. ")
+
+    # 너무 길어지지 않도록 앞쪽 설명 위주로 3~4개만 사용
+    return " ".join(parts[:4])
 
 
 def match_rackets(hand_profile: dict, style_profile: dict):
@@ -113,18 +200,20 @@ def match_rackets(hand_profile: dict, style_profile: dict):
 
         # 스펙 계열
         head_size = _get_attr(r, "head_size_sq_in", None)
-        unstrung_weight = _get_attr(r, "unstrung_weight_g", _get_attr(r, "weight", None))
+        unstrung_weight = _get_attr(
+            r, "unstrung_weight_g", _get_attr(r, "weight", None)
+        )
         swingweight = _get_attr(r, "swingweight", None)
         stiffness_ra = _get_attr(r, "stiffness_ra", None)
         balance_type = _get_attr(r, "balance_type", None)  # 'HL', 'EB', 'HH'
         string_pattern = _get_attr(r, "string_pattern", None)
 
-        # 기본 스코어
+        # 기본 스코어 (내부 절대 점수)
         score = (
-            power_score * power_w +
-            control_score * control_w +
-            spin_score * spin_w +
-            comfort_score * comfort_w
+            power_score * power_w
+            + control_score * control_w
+            + spin_score * spin_w
+            + comfort_score * comfort_w
         )
 
         # === 무게 보정 (손 크기 + 선호 + 통증, 추측 로직) ===
@@ -197,25 +286,67 @@ def match_rackets(hand_profile: dict, style_profile: dict):
             if "16x19" in string_pattern or "16x18" in string_pattern:
                 score += 4
 
-        candidates.append({
-            "id": r.id,
-            "name": r.name,
-            "brand": r.brand,
-            "weight": unstrung_weight,
-            "headSize": head_size,
-            "swingweight": swingweight,
-            "stiffnessRa": stiffness_ra,
-            "balanceType": balance_type,
-            "stringPattern": string_pattern,
-            "powerScore": power_score,
-            "controlScore": control_score,
-            "spinScore": spin_score,
-            "comfortScore": comfort_score,
-            "score": float(score),
-        })
+        # 추천 이유 생성 
+        reason_text = _build_racket_reason(
+            hand_profile,
+            style_profile,
+            head_size=head_size,
+            unstrung_weight=unstrung_weight,
+            swingweight=swingweight,
+            stiffness_ra=stiffness_ra,
+            string_pattern=string_pattern,
+            power_score=power_score,
+            control_score=control_score,
+            spin_score=spin_score,
+        )
 
-    # 점수순 상위 5개
+        # 여기 단계의 score는 "내부 절대 점수"
+        candidates.append(
+            {
+                "id": r.id,
+                "name": r.name,
+                "brand": r.brand,
+                "weight": unstrung_weight,
+                "headSize": head_size,
+                "swingweight": swingweight,
+                "stiffnessRa": stiffness_ra,
+                "balanceType": balance_type,
+                "stringPattern": string_pattern,
+                "powerScore": power_score,
+                "controlScore": control_score,
+                "spinScore": spin_score,
+                "score": float(score),  # rawScore 후보
+                "reason": reason_text,
+            }
+        )
+
+    if not candidates:
+        string_rec = _compute_string_recommendation(hand_profile, style_profile)
+        return {
+            "rackets": [],
+            "string": string_rec,
+        }
+
+    # 점수순 정렬 후 상위 5개 선택 (여기까지는 절대 점수 기준)
     candidates = sorted(candidates, key=lambda x: x["score"], reverse=True)[:5]
+
+    # === 정규화: 1등을 100점으로 맞추고 나머지는 비율로 환산 ===
+    max_score = candidates[0]["score"] if candidates and candidates[0]["score"] else 0.0
+
+    if max_score > 0:
+        for c in candidates:
+            raw = float(c["score"])
+            normalized = round(raw / max_score * 100.0, 1)
+            c["rawScore"] = raw            # 내부 절대 점수 보존
+            c["score"] = normalized        # UI에서 사용할 정규화 점수
+            c["normalizedScore"] = normalized  # 명시적인 필드도 함께 제공
+    else:
+        # 모든 점수가 0 이하인 비정상 케이스 방어
+        for c in candidates:
+            raw = float(c["score"])
+            c["rawScore"] = raw
+            c["score"] = 0.0
+            c["normalizedScore"] = 0.0
 
     string_rec = _compute_string_recommendation(hand_profile, style_profile)
 

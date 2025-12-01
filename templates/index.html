@@ -26,9 +26,7 @@
             </p>
           </div>
         </div>
-        <nav>
-          <a href="/admin" class="button button-secondary">DB 관리</a>
-        </nav>
+        <!-- DB 관리 버튼 제거 -->
       </header>
 
       <main class="app-main">
@@ -151,7 +149,7 @@
             <form id="surveyForm" class="survey-grid" onsubmit="return false;">
               <div class="survey-field">
                 <label for="surveyLevel">현재 레벨 / 구력</label>
-                <select id="surveyLevel" class="input">
+                <select id="surveyLevel" class="input select-input">
                   <option value="">선택 안 함</option>
                   <option value="beginner">입문 (레슨 3개월 이하)</option>
                   <option value="intermediate">초급 (3~12개월)</option>
@@ -162,7 +160,7 @@
 
               <div class="survey-field">
                 <label for="surveyPain">팔·손목 통증 여부</label>
-                <select id="surveyPain" class="input">
+                <select id="surveyPain" class="input select-input">
                   <option value="">선택 안 함</option>
                   <option value="none">통증 없음</option>
                   <option value="sometimes">가끔 있다</option>
@@ -172,7 +170,7 @@
 
               <div class="survey-field">
                 <label for="surveySwing">스윙 속도 / 템포</label>
-                <select id="surveySwing" class="input">
+                <select id="surveySwing" class="input select-input">
                   <option value="">선택 안 함</option>
                   <option value="slow">느린 편</option>
                   <option value="normal">보통</option>
@@ -189,7 +187,7 @@
                     >?</span
                   >
                 </label>
-                <select id="surveyStringType" class="input">
+                <select id="surveyStringType" class="input select-input">
                   <option value="auto">상관 없음</option>
                   <option value="poly">폴리 위주가 좋음</option>
                   <option value="multi">멀티필라멘트 위주가 좋음</option>

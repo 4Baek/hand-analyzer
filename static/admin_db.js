@@ -1,7 +1,4 @@
-// admin_db.js
-
 document.addEventListener("DOMContentLoaded", () => {
-  const btnResetDb = document.getElementById("btnResetDb");
   const btnLoadAllRackets = document.getElementById("btnLoadAllRackets");
   const adminStatusEl = document.getElementById("adminStatus");
   const adminRacketListEl = document.getElementById("adminRacketList");
@@ -21,98 +18,153 @@ document.addEventListener("DOMContentLoaded", () => {
     adminStatusEl.classList.toggle("admin-status-error", !!isError);
   }
 
-  // 라켓 목록 렌더링 + 단건 삭제 버튼
+  function normalizeTags(rawTags) {
+    if (!rawTags) return [];
+
+    if (Array.isArray(rawTags)) {
+      return rawTags
+        .map((t) => String(t).trim())
+        .filter((t) => t.length > 0);
+    }
+
+    if (typeof rawTags === "string") {
+      return rawTags
+        .split(/[,\s]+/)
+        .map((t) => t.trim())
+        .filter((t) => t.length > 0);
+    }
+
+    return [];
+  }
+
+  // 목록 렌더링
+    // 라켓 목록 렌더링
   function renderRacketList(data) {
-  const container = adminRacketListEl;
-  if (!container) return;
+    const container = adminRacketListEl;
+    if (!container) return;
 
-  container.innerHTML = "";
+    container.innerHTML = "";
 
-  if (!data) {
-    container.textContent = "라켓 데이터가 없습니다.";
-    return;
-  }
-
-  const rackets = Array.isArray(data.rackets) ? data.rackets : data;
-
-  if (!Array.isArray(rackets) || rackets.length === 0) {
-    container.textContent = "라켓 데이터가 없습니다.";
-    return;
-  }
-
-  rackets.forEach((racket) => {
-    const card = document.createElement("div");
-    card.className = "racket-card";
-
-    const header = document.createElement("div");
-    header.className = "racket-header";
-
-    // 1열: 이름
-    const name = document.createElement("div");
-    name.className = "racket-name";
-    name.textContent = racket.name || "이름 없음";
-    header.appendChild(name);
-
-    // 2열: P
-    const pSpan = document.createElement("div");
-    pSpan.className = "score-col";
-    pSpan.textContent = `P${racket.power ?? "-"}`;
-    header.appendChild(pSpan);
-
-    // 3열: C
-    const cSpan = document.createElement("div");
-    cSpan.className = "score-col";
-    cSpan.textContent = `C${racket.control ?? "-"}`;
-    header.appendChild(cSpan);
-
-    // 4열: S
-    const sSpan = document.createElement("div");
-    sSpan.className = "score-col";
-    sSpan.textContent = `S${racket.spin ?? "-"}`;
-    header.appendChild(sSpan);
-
-    // 5열: 삭제 버튼(있으면)
-    if (typeof racket.id === "number") {
-      const delBtn = document.createElement("button");
-      delBtn.className =
-        "button button-secondary button-danger button-small";
-      delBtn.textContent = "삭제";
-      delBtn.addEventListener("click", () => deleteRacketById(racket.id));
-      header.appendChild(delBtn);
+    if (!data) {
+      container.textContent = "라켓 데이터가 없습니다.";
+      return;
     }
 
-    card.appendChild(header);
+    const rackets = Array.isArray(data.rackets) ? data.rackets : data;
 
-    const tagsBox = document.createElement("div");
-    tagsBox.className = "racket-tags";
-
-    const brand = racket.brand;
-    if (brand) {
-      const tag = document.createElement("span");
-      tag.className = "racket-tag";
-      tag.textContent = brand;
-      tagsBox.appendChild(tag);
+    if (!Array.isArray(rackets) || rackets.length === 0) {
+      container.textContent = "라켓 데이터가 없습니다.";
+      return;
     }
 
-    if (Array.isArray(racket.tags)) {
-      racket.tags.forEach((t) => {
+    rackets.forEach((racket) => {
+      const card = document.createElement("div");
+      card.className = "racket-card";
+
+      /* ---------- 헤더: ID + 이름 + 삭제 ---------- */
+      const header = document.createElement("div");
+      header.className = "racket-header";
+
+      const name = document.createElement("div");
+      name.className = "racket-name";
+      const idLabel =
+        typeof racket.id === "number" ? `${racket.id} ` : "";
+      name.textContent = `${idLabel}${racket.name || "이름 없음"}`;
+      header.appendChild(name);
+
+      if (typeof racket.id === "number") {
+        const delBtn = document.createElement("button");
+        delBtn.className =
+          "button button-secondary button-danger button-small";
+        delBtn.textContent = "삭제";
+        delBtn.addEventListener("click", () => deleteRacketById(racket.id));
+        header.appendChild(delBtn);
+      }
+
+      card.appendChild(header);
+
+      /* ---------- 브랜드 / 무게 줄 ---------- */
+      const infoRow = document.createElement("div");
+      infoRow.className = "racket-info-row";
+      const brandText = racket.brand || "-";
+
+      // weight 컬럼이 있으면 우선 사용, 없으면 unstrung_weight_g 사용
+      const listedWeight =
+        racket.weight ?? racket.unstrung_weight_g ?? null;
+      const weightText = listedWeight ? `${listedWeight}g` : "-";
+
+      infoRow.textContent = `브랜드: ${brandText} · 무게: ${weightText}`;
+      card.appendChild(infoRow);
+
+      /* ---------- 스펙 줄: 실제 있는 값만 모아서 표시 ---------- */
+      const specRow = document.createElement("div");
+      specRow.className = "racket-spec-row";
+
+      const head = racket.head_size_sq_in ?? racket.head_size;
+      const length = racket.length_mm;
+      const balance = racket.balance_type;
+      const sw = racket.swingweight;
+      const ra = racket.stiffness_ra;
+      const pattern = racket.string_pattern;
+      const beam = racket.beam_width_mm;
+
+      const specParts = [];
+
+      if (head) specParts.push(`${head}sq`);
+      if (length) specParts.push(`${length}mm`);
+      if (listedWeight) specParts.push(`${listedWeight}g`);
+      if (balance) specParts.push(balance);
+      if (sw) specParts.push(`SW ${sw}`);
+      if (ra) specParts.push(`RA ${ra}`);
+      if (pattern) specParts.push(pattern);
+      if (beam) specParts.push(`빔 ${beam}`);
+
+      specRow.textContent =
+        "스펙: " + (specParts.length > 0 ? specParts.join(" · ") : "정보 없음");
+      card.appendChild(specRow);
+
+      /* ---------- 점수 줄: P / C / S ---------- */
+      const scoreParts = [];
+      if (racket.power != null) scoreParts.push(`P${racket.power}`);
+      if (racket.control != null) scoreParts.push(`C${racket.control}`);
+      if (racket.spin != null) scoreParts.push(`S${racket.spin}`);
+
+      if (scoreParts.length > 0) {
+        const scoreRow = document.createElement("div");
+        scoreRow.className = "racket-score-row";
+        scoreRow.textContent = `점수: ${scoreParts.join(" · ")}`;
+        card.appendChild(scoreRow);
+      }
+
+      /* ---------- 태그들 ---------- */
+      const tagsBox = document.createElement("div");
+      tagsBox.className = "racket-tags";
+
+      if (racket.brand) {
+        const tag = document.createElement("span");
+        tag.className = "racket-tag";
+        tag.textContent = racket.brand;
+        tagsBox.appendChild(tag);
+      }
+
+      const tags = normalizeTags(racket.tags);
+      tags.forEach((t) => {
         const tag = document.createElement("span");
         tag.className = "racket-tag";
         tag.textContent = t;
         tagsBox.appendChild(tag);
       });
-    }
 
-    if (tagsBox.childElementCount > 0) {
-      card.appendChild(tagsBox);
-    }
+      if (tagsBox.childElementCount > 0) {
+        card.appendChild(tagsBox);
+      }
 
-    container.appendChild(card);
-  });
-}
+      container.appendChild(card);
+    });
+  }
 
 
-  // ---- 단건 삭제 함수 ----
+  // 삭제
   async function deleteRacketById(id) {
     if (!confirm(`ID ${id} 라켓을 삭제할까요?`)) {
       return;
@@ -134,31 +186,6 @@ document.addEventListener("DOMContentLoaded", () => {
       await handleLoadAllRackets();
     } catch (e) {
       setAdminStatus(`라켓 삭제 에러: ${e}`, true);
-    }
-  }
-
-  async function handleResetDb() {
-    if (!confirm("정말로 DB를 초기화하고 샘플 데이터로 다시 채울까요?")) {
-      return;
-    }
-
-    try {
-      setAdminStatus("DB 초기화 요청 중...");
-      const res = await fetch("/admin/reset-db", {
-        method: "POST",
-      });
-
-      if (!res.ok) {
-        const text = await res.text();
-        setAdminStatus(`DB 초기화 실패 (${res.status}) : ${text}`, true);
-        return;
-      }
-
-      const data = await res.json();
-      setAdminStatus(data.message || "DB가 초기화되었습니다.");
-      await handleLoadAllRackets();
-    } catch (e) {
-      setAdminStatus(`DB 초기화 에러: ${e}`, true);
     }
   }
 
@@ -193,11 +220,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const payload = {
       name,
       brand,
-      power: adminNewPower?.value,
-      control: adminNewControl?.value,
-      spin: adminNewSpin?.value,
-      weight: adminNewWeight?.value,
-      tags: adminNewTags?.value,
+      power: adminNewPower?.value ? Number(adminNewPower.value) : null,
+      control: adminNewControl?.value ? Number(adminNewControl.value) : null,
+      spin: adminNewSpin?.value ? Number(adminNewSpin.value) : null,
+      weight: adminNewWeight?.value ? Number(adminNewWeight.value) : null,
+      tags: adminNewTags?.value || "",
     };
 
     try {
@@ -236,11 +263,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  if (btnResetDb) btnResetDb.addEventListener("click", handleResetDb);
   if (btnLoadAllRackets)
     btnLoadAllRackets.addEventListener("click", handleLoadAllRackets);
   if (btnAddRacket) btnAddRacket.addEventListener("click", handleAddRacket);
 
-  // 첫 진입 시 목록 한 번 가져오기
+  // 첫 진입 시 자동 조회
   handleLoadAllRackets();
 });
