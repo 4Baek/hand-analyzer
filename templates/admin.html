@@ -22,7 +22,7 @@
           <div class="brand-text">
             <h1 class="brand-title">Racket DB Admin</h1>
             <p class="brand-subtitle">
-              라켓 스펙 조회 · 추가용 관리자 페이지
+              라켓 스펙 조회 · 추가 및 활성 여부 관리
             </p>
           </div>
         </div>
@@ -39,8 +39,8 @@
               <div>
                 <h2 class="card-title">라켓 목록</h2>
                 <p class="card-description">
-                  DB에 저장된 라켓들을 확인할 수 있습니다. 필요할 때마다
-                  전체 조회를 눌러 최신 상태를 가져오세요.
+                  DB에 저장된 라켓들을 확인하고, 활성/비활성 상태를 관리할 수
+                  있습니다.
                 </p>
               </div>
               <div class="admin-controls">
@@ -55,6 +55,10 @@
 
             <div class="result-section">
               <h3 class="section-title">DB에 저장된 라켓 목록</h3>
+              <p class="section-hint">
+                점수(P/C/S), 스펙(헤드/무게/SW/RA/패턴/빔)과 활성 상태를 한눈에
+                확인할 수 있습니다.
+              </p>
               <div
                 id="adminRacketList"
                 class="racket-list admin-racket-list"
@@ -68,12 +72,14 @@
           <section class="card admin-card">
             <h2 class="card-title">라켓 DB 관리</h2>
             <p class="card-description">
-              새로운 라켓을 추가하거나 스펙을 관리할 때 사용합니다.
+              새로운 라켓을 추가할 때 기본 스펙과 점수를 입력하고, 예약 URL 및
+              활성 여부를 함께 설정합니다.
             </p>
 
             <div class="admin-add-form">
               <h3 class="section-title">라켓 추가</h3>
 
+              <!-- 기본 정보 -->
               <div class="form-row">
                 <div class="form-group">
                   <label>라켓 이름</label>
@@ -96,6 +102,7 @@
                 </div>
               </div>
 
+              <!-- 점수/무게 -->
               <div class="form-row">
                 <div class="form-group small">
                   <label>파워 (1~10)</label>
@@ -131,7 +138,7 @@
                 </div>
 
                 <div class="form-group small">
-                  <label>무게 (g)</label>
+                  <label>무게 (언스트렁, g)</label>
                   <input
                     id="adminNewWeight"
                     type="number"
@@ -141,6 +148,83 @@
                 </div>
               </div>
 
+              <!-- 스펙 1: 헤드 / SW / RA / 길이 -->
+              <div class="form-row">
+                <div class="form-group small">
+                  <label>헤드 사이즈 (sq.in)</label>
+                  <input
+                    id="adminNewHeadSizeSqIn"
+                    type="number"
+                    class="input"
+                    placeholder="예: 98"
+                  />
+                </div>
+
+                <div class="form-group small">
+                  <label>스윙웨이트 (SW)</label>
+                  <input
+                    id="adminNewSwingweight"
+                    type="number"
+                    class="input"
+                    placeholder="예: 320"
+                  />
+                </div>
+
+                <div class="form-group small">
+                  <label>프레임 강성 (RA)</label>
+                  <input
+                    id="adminNewStiffnessRa"
+                    type="number"
+                    class="input"
+                    placeholder="예: 65"
+                  />
+                </div>
+
+                <div class="form-group small">
+                  <label>길이 (mm)</label>
+                  <input
+                    id="adminNewLengthMm"
+                    type="number"
+                    class="input"
+                    placeholder="예: 685"
+                  />
+                </div>
+              </div>
+
+              <!-- 스펙 2: 패턴 / 밸런스 / 빔 -->
+              <div class="form-row">
+                <div class="form-group">
+                  <label>스트링 패턴</label>
+                  <input
+                    id="adminNewStringPattern"
+                    type="text"
+                    class="input"
+                    placeholder="예: 16x19"
+                  />
+                </div>
+
+                <div class="form-group small">
+                  <label>밸런스 타입</label>
+                  <input
+                    id="adminNewBalanceType"
+                    type="text"
+                    class="input"
+                    placeholder="예: HL / EB / HH"
+                  />
+                </div>
+
+                <div class="form-group small">
+                  <label>빔 두께 (mm)</label>
+                  <input
+                    id="adminNewBeamWidthMm"
+                    type="number"
+                    class="input"
+                    placeholder="예: 23"
+                  />
+                </div>
+              </div>
+
+              <!-- 태그 -->
               <div class="form-row">
                 <div class="form-group full">
                   <label>태그 (쉼표로 구분)</label>
@@ -153,7 +237,7 @@
                 </div>
               </div>
 
-              <!-- 예약 URL 입력 -->
+              <!-- URL + 활성 여부 -->
               <div class="form-row">
                 <div class="form-group full">
                   <label>예약 URL</label>
@@ -163,6 +247,19 @@
                     class="input"
                     placeholder="예: https://racketscouter.com/reserve/..."
                   />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group small">
+                  <label>
+                    <input
+                      id="adminNewIsActive"
+                      type="checkbox"
+                      checked
+                    />
+                    활성 라켓으로 사용
+                  </label>
                 </div>
               </div>
 

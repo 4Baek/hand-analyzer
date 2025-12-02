@@ -1,27 +1,28 @@
 /* =========================================
    RacketScouter 공통 스타일 (index + admin)
+   화이트/라이트 테마 버전
    ========================================= */
 
 /* ---- 기본 설정 & 컬러 토큰 ---- */
 :root {
-  --color-bg: #050816;
-  --color-bg-elevated: #0b1020;
-  --color-bg-soft: #101528;
-  --color-border-soft: rgba(255, 255, 255, 0.06);
-  --color-border-strong: rgba(255, 255, 255, 0.16);
-  --color-primary: #4f8cff;
-  --color-primary-soft: rgba(79, 140, 255, 0.14);
-  --color-primary-strong: #3a72dd;
-  --color-accent: #ffcc4d;
-  --color-text-main: #f5f7ff;
-  --color-text-subtle: #a0a8c5;
-  --color-text-faint: #70789a;
-  --color-danger: #ff5470;
-  --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.45);
-  --radius-lg: 18px;
-  --radius-md: 12px;
+  --color-bg: #ffffff;
+  --color-bg-elevated: #ffffff;
+  --color-bg-soft: #f7f7f8;
+  --color-border-soft: #e3e3e7;
+  --color-border-strong: #cfd0d5;
+  --color-primary: #1f6fff;
+  --color-primary-soft: #e8f0ff;
+  --color-primary-strong: #1755d4;
+  --color-accent: #f97316;
+  --color-text-main: #222222;
+  --color-text-subtle: #666666;
+  --color-text-faint: #9a9aa3;
+  --color-danger: #e53935;
+  --shadow-soft: 0 4px 14px rgba(15, 23, 42, 0.08);
+  --radius-lg: 16px;
+  --radius-md: 10px;
   --radius-pill: 999px;
-  --transition-fast: 0.16s ease-out;
+  --transition-fast: 0.15s ease-out;
   --transition-medium: 0.22s ease-out;
 }
 
@@ -41,20 +42,16 @@ body {
   min-height: 100vh;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     Roboto, "Noto Sans KR", sans-serif;
-  
-  /* 기존보다 어둡게 조정된 버전 */
-  background: radial-gradient(circle at top left, #131935 0, #030511 50%) fixed,
-              radial-gradient(circle at bottom right, #0a1028 0, #030511 60%) fixed;
-
+  background: var(--color-bg);
   color: var(--color-text-main);
 }
 
 /* ---- 공통 레이아웃 ---- */
 
 .app {
-  max-width: 1240px;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 24px 20px 32px;
+  padding: 28px 20px 36px;
 }
 
 .app-header {
@@ -63,12 +60,14 @@ body {
   align-items: center;
   gap: 16px;
   margin-bottom: 24px;
+  border-bottom: 1px solid var(--color-border-soft);
+  padding-bottom: 12px;
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .brand-logo {
@@ -78,26 +77,26 @@ body {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 20%, #ffe48f, #ff9c3c);
-  box-shadow: 0 0 18px rgba(255, 197, 120, 0.6);
+  background: #111827;
+  color: #ffffff;
   font-size: 22px;
 }
 
 .brand-text {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .brand-title {
   margin: 0;
-  font-size: 1.2rem;
-  letter-spacing: 0.02em;
+  font-size: 1.4rem;
+  letter-spacing: 0.01em;
 }
 
 .brand-subtitle {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   color: var(--color-text-subtle);
 }
 
@@ -112,14 +111,9 @@ body {
 /* 공통 카드 */
 
 .card {
-  background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.02),
-      rgba(255, 255, 255, 0.01)
-    ),
-    radial-gradient(circle at 0 0, rgba(79, 140, 255, 0.12), transparent 60%);
+  background: var(--color-bg-elevated);
   border-radius: var(--radius-lg);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--color-border-soft);
   box-shadow: var(--shadow-soft);
   padding: 18px 18px 20px;
   position: relative;
@@ -130,12 +124,12 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    circle at top right,
-    rgba(255, 255, 255, 0.06),
-    transparent 60%
+  background: linear-gradient(
+    135deg,
+    rgba(248, 250, 252, 0.8),
+    rgba(248, 250, 252, 0)
   );
-  opacity: 0.14;
+  opacity: 0.6;
   pointer-events: none;
 }
 
@@ -150,7 +144,7 @@ body {
 
 .card-description {
   margin: 0 0 16px;
-  font-size: 0.85rem;
+  font-size: 0.86rem;
   color: var(--color-text-subtle);
 }
 
@@ -163,8 +157,8 @@ body {
   gap: 6px;
   padding: 7px 14px;
   border-radius: var(--radius-pill);
-  border: 1px solid transparent;
-  background: transparent;
+  border: 1px solid var(--color-border-soft);
+  background: #ffffff;
   color: var(--color-text-main);
   font-size: 0.83rem;
   font-weight: 500;
@@ -176,37 +170,33 @@ body {
 }
 
 .button-primary {
-  background: #1e2f66;   /* 딥블루보다 파란 느낌 */
-  border-color: rgba(255, 255, 255, 0.07);
-  color: #eaf0ff;
-
-  box-shadow: none;     /* 대비 최소 */
-  transition: background 0.18s ease-out,
-              transform 0.18s ease-out;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.28);
 }
 
 .button-primary:hover {
-  background: #24387a;   /* 미세하게만 밝게, 여전히 튀지 않음 */
   transform: translateY(-1px);
+  background: var(--color-primary-strong);
 }
 
 .button-secondary {
-  background: rgba(255, 255, 255, 0.02);
-  border-color: rgba(255, 255, 255, 0.16);
+  background: #ffffff;
 }
 
 .button-secondary:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: #f4f4f5;
 }
 
 .button-danger {
-  background: rgba(255, 84, 112, 0.12);
-  border-color: rgba(255, 84, 112, 0.8);
-  color: #ffd8e1;
+  background: #fee2e2;
+  border-color: #fecaca;
+  color: var(--color-danger);
 }
 
 .button-danger:hover {
-  background: rgba(255, 84, 112, 0.22);
+  background: #fecaca;
 }
 
 .button-small {
@@ -231,9 +221,9 @@ select,
 textarea {
   width: 100%;
   padding: 7px 9px;
-  border-radius: 9px;
+  border-radius: 8px;
   border: 1px solid var(--color-border-soft);
-  background: rgba(2, 6, 23, 0.7);
+  background: #ffffff;
   color: var(--color-text-main);
   font-size: 0.83rem;
   outline: none;
@@ -250,8 +240,8 @@ textarea::placeholder {
 select:focus,
 textarea:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 1px rgba(79, 140, 255, 0.6);
-  background: rgba(5, 10, 35, 0.96);
+  box-shadow: 0 0 0 2px var(--color-primary-soft);
+  background: #ffffff;
 }
 
 label {
@@ -315,7 +305,7 @@ label {
 /* 업로드 & 분석 레이아웃 */
 
 .upload-card {
-  /* 그냥 card 스타일 사용 */
+  /* card 스타일 그대로 사용 */
 }
 
 .result-card {
@@ -367,13 +357,8 @@ label {
 
 .drop-zone {
   border-radius: var(--radius-md);
-  border: 1px dashed rgba(255, 255, 255, 0.32);
-  background: radial-gradient(
-      circle at top left,
-      rgba(79, 140, 255, 0.10),
-      transparent 65%
-    ),
-    rgba(3, 6, 20, 0.96);
+  border: 1.5px dashed var(--color-border-soft);
+  background: var(--color-bg-soft);
   padding: 16px;
   display: flex;
   align-items: center;
@@ -390,12 +375,7 @@ label {
 
 .drop-zone.dragover {
   border-color: var(--color-primary);
-  background: radial-gradient(
-      circle at top left,
-      rgba(79, 140, 255, 0.25),
-      transparent 65%
-    ),
-    rgba(4, 9, 28, 1);
+  background: var(--color-primary-soft);
   transform: translateY(-1px);
 }
 
@@ -425,7 +405,7 @@ label {
 .preview-box {
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border-soft);
-  background: rgba(4, 8, 22, 0.9);
+  background: var(--color-bg-soft);
   padding: 8px;
   min-height: 180px;
   display: flex;
@@ -469,13 +449,8 @@ label {
 
 .metric-item {
   border-radius: 11px;
-  background: radial-gradient(
-      circle at top left,
-      rgba(79, 140, 255, 0.08),
-      transparent 60%
-    ),
-    rgba(8, 13, 35, 0.96);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--color-bg-soft);
+  border: 1px solid var(--color-border-soft);
   padding: 7px 9px;
   font-size: 0.78rem;
   display: flex;
@@ -521,7 +496,7 @@ label {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.18);
+  border: 2px solid rgba(148, 163, 184, 0.4);
   border-top-color: var(--color-primary);
   animation: spinner 0.7s linear infinite;
 }
@@ -539,9 +514,9 @@ label {
 }
 
 .alert-error {
-  background: rgba(255, 84, 112, 0.12);
-  border: 1px solid rgba(255, 84, 112, 0.7);
-  color: #ffdfe8;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
 }
 
 /* 설문 */
@@ -597,7 +572,7 @@ label {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.26);
+  border: 1px solid var(--color-border-soft);
   font-size: 0.7rem;
   color: var(--color-text-subtle);
   margin-left: 4px;
@@ -614,8 +589,8 @@ label {
 .racket-card {
   border-radius: 14px;
   padding: 9px 11px 9px;
-  background: rgba(6, 10, 30, 0.96);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid var(--color-border-soft);
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -639,7 +614,7 @@ label {
 
 .racket-score {
   font-size: 0.8rem;
-  color: var(--color-accent);
+  color: var(--color-primary);
 }
 
 .racket-spec {
@@ -655,7 +630,7 @@ label {
 .racket-info-row {
   font-size: 0.78rem;
   color: var(--color-text-subtle);
-  opacity: 0.85;
+  opacity: 0.9;
 }
 
 /* 태그 / 칩 */
@@ -671,8 +646,8 @@ label {
   font-size: 0.74rem;
   padding: 2px 7px;
   border-radius: var(--radius-pill);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid var(--color-border-soft);
+  background: var(--color-bg-soft);
   color: var(--color-text-main);
 }
 
@@ -689,8 +664,8 @@ label {
 .string-box {
   margin-top: 6px;
   border-radius: 12px;
-  border: 1px dashed rgba(255, 255, 255, 0.18);
-  background: rgba(10, 16, 40, 0.96);
+  border: 1px dashed var(--color-border-soft);
+  background: var(--color-bg-soft);
   padding: 8px 10px;
   display: flex;
   flex-direction: column;
